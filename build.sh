@@ -14,10 +14,18 @@ export SRC="$PWD"
 
 cd ../..
 
-#clone the repo
-mkdir -p git
-cd git
-git clone $git --recurse $1
+#if tar download tar instead of clonging repo
+if [ "$tar" != "" ] ; then
+	mkdir -p tar
+	cd tar
+	curl "$tar" > $(basename "$tar")
+	exit
+else
+	#clone the repo
+	mkdir -p git
+	cd git
+	git clone --depth 1 $git --recurse $1
+fi
 
 #now apply the patch if needed
 if [ "$patch" != "" ] ; then

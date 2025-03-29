@@ -6,6 +6,7 @@ config.mk
 *.a
 *.o
 
-#ignore cloned repo
+#ignore cloned repo and downloaded tar
 git
 repo
+tar
