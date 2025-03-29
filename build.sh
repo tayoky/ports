@@ -21,7 +21,7 @@ git clone $git --recurse $1
 
 #now apply the patch if needed
 if [ "$patch" != "" ] ; then
-	echo $(cd $1 && git apply ../$patch)
+	echo $(cd $1 && git apply ${SRC}/$patch)
 fi
 
 #run configuration if any
