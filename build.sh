@@ -4,7 +4,7 @@
 #just in case it wasen't aready done
 . ./config.mk
 
-cd $1
+cd ports/$1
 
 #SRC is where all the script are
 export SRC="$PWD"
@@ -12,7 +12,7 @@ export SRC="$PWD"
 #source the config file
 . ./$1.ini
 
-cd ..
+cd ../..
 
 #clone the repo
 mkdir -p git

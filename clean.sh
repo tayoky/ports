@@ -1,12 +1,7 @@
 #!/bin/sh
 
-cd $1
-
 #source the config file
-. ./$1.ini
-
-#run clean if any
-(cd $1 ; $clean)
+. ./ports/$1/$1.ini
 
 #delete the repo
-rm -fr $1
+rm -fr git/$1
