@@ -1,0 +1,11 @@
+#config
+config.mk
+
+#compiled and object files
+*.lib
+*.a
+*.o
+
+#ignore cloned repo
+git
+repo
