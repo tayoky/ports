@@ -1,0 +1,1 @@
+a collection of psf version 1 fonts from console-data package of debian
