@@ -10,7 +10,7 @@ to build a package just do
 ./configure
 ./build.sh XXX
 ```
-NOTE : see [configure options](configure-options)
+NOTE : see [configure options](#configure-options)
 ## install and packages
 to install a port do
 ```sh
