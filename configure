@@ -25,7 +25,7 @@ for i in "$@"; do
 			shift # past argument=value
 			;;
 		--prefix=*)
-			PREFIX="${i#*=}"
+			PREFIX=$(realpath "${i#*=}")
 			shift # past argument=value
 			;;
 		-*|--*)
