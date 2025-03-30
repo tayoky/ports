@@ -37,7 +37,7 @@ echo "[package]" >> info.ini
 echo "name=$1" >> info.ini
 echo "host=$HOST" >> info.ini
 echo "[dependencies]" >> info.ini
-
+echo "base" | cat - $SRC/$dependencies >> info.ini
 
 #make the tar
 tar -c * -f ../$1.tar

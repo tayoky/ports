@@ -12,8 +12,8 @@ if [ "$git"  ] ; then
 	echo "git repo    : $git"
 fi
 
-if [ "$depencies" ] ; then
-	echo "depencies   : $(cat $depencies)"
+if [ "$dependencies" ] ; then
+	echo "dependencies: $(cat $dependencies)"
 fi
 if [ "$info" ] ; then
 	echo "description : $(cat $info)"
