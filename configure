@@ -72,3 +72,4 @@ echo "HOST=$HOST" >> config.mk
 echo "PREFIX=$PREFIX" >> config.mk
 echo "CC=$CC" >> config.mk
 echo "LD=$LD" >> config.mk
+echo "SYSROOT=$SYSROOT" >> config.mk
