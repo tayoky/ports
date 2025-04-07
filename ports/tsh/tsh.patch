@@ -1,0 +1,15 @@
+diff --git a/makefile b/makefile
+index 4b8de71..c49ce21 100644
+--- a/makefile
++++ b/makefile
+@@ -7,7 +7,9 @@ CFLAGS += -DHOST=\"${HOST}\"
+ 
+ all : tsh
+ tsh : ${OBJ}
+-	${CC} ${OBJ} -o tsh
++#	we need to make a raw call to LD for some reason ...
++	${LD} ${LDFLAGS} -o tsh ${OBJ} ${SYSROOT}/usr/lib/crt0.o -L ${SYSROOT}/usr/lib -lc
++#	${CC} ${OBJ} -o tsh
+ %.o : %.c
+ 	${CC} ${CFLAGS} -o $@ -c $^
+ clean :

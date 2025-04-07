@@ -1,0 +1,29 @@
+diff --git a/doomgeneric/m_config.c b/doomgeneric/m_config.c
+index 865e168..202bb9d 100644
+--- a/doomgeneric/m_config.c
++++ b/doomgeneric/m_config.c
+@@ -1565,7 +1565,8 @@ static default_t *SearchCollection(default_collection_t *collection, char *name)
+     int i;
+ 
+     for (i=0; i<collection->numdefaults; ++i)
+     {
++        printf("%s\n",collection->defaults[i].name);
+         if (!strcmp(name, collection->defaults[i].name))
+         {
+             return &collection->defaults[i];
+@@ -1936,6 +1937,7 @@ void M_LoadDefaults (void)
+ 
+ static default_t *GetDefaultForName(char *name)
+ {
++    printf("search : %s\n",name);
+     default_t *result;
+ 
+     // Try the main list and the extras
+@@ -1945,6 +1947,7 @@ static default_t *GetDefaultForName(char *name)
+     if (result == NULL)
+     {
+         result = SearchCollection(&extra_defaults, name);
++        printf("%lx\n",result);
+     }
+ 
+     // Not found? Internal error.
