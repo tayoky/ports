@@ -87,23 +87,23 @@ index 0000000..6986ff7
 +}
 +
 +void DG_Init() {
-+    printf("init devcies\n");
++    printf("init devices\n");
 +
 +    // first open the framebuffer
 +    printf("open framebuffer\n");
-+    framebuffer_fd = open("dev:/fb/00", O_WRONLY);
++    framebuffer_fd = open("/dev/fb0", O_WRONLY);
 +    if (framebuffer_fd < 0) {
 +        // fail to open
-+        perror("open dev:/fb/00");
++        perror("open /dev/fb0");
 +        abort();
 +    }
 +
 +    // now open keyboard device
 +    printf("open keyboard\n");
-+    keyboard_fd = open("dev:/kb0", O_RDONLY);
++    keyboard_fd = open("/dev/kb0", O_RDONLY);
 +    if (keyboard_fd < 0) {
 +        // fail to open
-+        perror("open dev:/kb0");
++        perror("open /dev/kb0");
 +        abort();
 +    }
 +
