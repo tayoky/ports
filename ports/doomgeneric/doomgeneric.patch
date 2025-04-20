@@ -57,7 +57,7 @@ new file mode 100644
 index 0000000..6986ff7
 --- /dev/null
 +++ b/doomgeneric/doomgeneric_stanix.c
-@@ -0,0 +1,153 @@
+@@ -0,0 +1,151 @@
 +#include <errno.h>
 +#include <fcntl.h>
 +#include <input.h>
@@ -205,8 +205,6 @@ index 0000000..6986ff7
 +// this functions don't exist on stanix so stub here
 +
 +int system(const char *cmd) { return 0; }
-+
-+int remove(const char *path) { return -ENOENT; }
 +
 +int rename(const char *src, const char *dest) { return -ENOSYS; }
 +
