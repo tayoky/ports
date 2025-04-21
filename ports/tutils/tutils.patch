@@ -16,3 +16,24 @@ index 0669744..b5bddfc 100644
  install : ${EXE}
  	cp ${EXE} ${PREFIX}/bin
  config.mk :
+diff --git a/src/test.c b/src/test.c
+index a1d226d..400c375 100644
+--- a/src/test.c
++++ b/src/test.c
+@@ -1,9 +1,16 @@
+ #include <stdio.h>
+ #include <string.h>
+ #include <sys/stat.h>
++#include <sys/types.h>
+ #include <unistd.h>
+ 
+ //simple test command
++uid_t geteuid(){
++	return 0;
++}
++gid_t getegid(){
++	return 0;
++}
+ 
+ int main(int argc,char **argv){
+ 	if(argc < 3){
