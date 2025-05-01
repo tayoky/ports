@@ -1,6 +1,6 @@
 #!/bin/sh
 
-./configure --prefix=$PREFIX --sysroot=$SYSROOT --targetos=stanix --enable-static --cc=$CC --triplet=x86_64-stanix --extra-cflags='CFLAGS = -Wall \
+./configure --prefix=$PREFIX --sysroot=$SYSROOT --targetos=stanix --enable-static --cc=$CC --triplet=x86_64-stanix --extra-cflags='-Wall
     -Wextra
     -std=gnu11
     -ffreestanding
@@ -11,9 +11,7 @@
     -isystem='$SYSROOT'/usr/include
 	-m64
 	-march=x86-64
-	-mno-80387
 	-mno-mmx
-	-mno-sse
 	-mno-sse2
 	-mno-red-zone
 	-mcmodel=kernel
