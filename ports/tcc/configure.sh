@@ -19,3 +19,8 @@
 
 echo '#define CONFIG_TCC_STATIC 1
 #define CONFIG_TCC_SEMLOCK 0' >> config.h
+
+echo 'LDFLAGS+= \
+    -nostdlib \
+    -static \
+    -L '$SYSROOT'/lib/ -lc'>> config.mak

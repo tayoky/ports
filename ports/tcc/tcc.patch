@@ -1,3 +1,23 @@
+diff --git a/Makefile b/Makefile
+index 2a7b774..3f759a3 100644
+--- a/Makefile
++++ b/Makefile
+@@ -36,12 +36,12 @@ ifdef CONFIG_WIN32
+  NATIVE_TARGET = $(ARCH)-win$(if $(findstring arm,$(ARCH)),ce,32)
+ else
+  CFG = -unx
+- LIBS+=-lm
++# LIBS+=-lm
+  ifneq ($(CONFIG_ldl),no)
+-  LIBS+=-ldl
++#  LIBS+=-ldl
+  endif
+  ifneq ($(CONFIG_pthread),no)
+-  LIBS+=-lpthread
++#  LIBS+=-lpthread
+  endif
+  # make libtcc as static or dynamic library?
+  ifeq ($(CONFIG_static),no)
 diff --git a/tcc.h b/tcc.h
 index 452a723..2b98265 100644
 --- a/tcc.h
