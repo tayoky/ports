@@ -15,12 +15,11 @@
 	-mno-sse2
 	-mno-red-zone
 	-mcmodel=kernel
-	-Dx86_64'
+	-Dx86_64' --extra-ldflags='--sysroot="'$SYSROOT'"
+    -nostdlib -nodefaultlibs
+    -static
+    '$SYSROOT'/usr/lib/crt0.o
+    -L '$SYSROOT'/usr/lib/ -lc' 
 
 echo '#define CONFIG_TCC_STATIC 1
 #define CONFIG_TCC_SEMLOCK 0' >> config.h
-
-echo 'LDFLAGS+= \
-    -nostdlib \
-    -static \
-    -L '$SYSROOT'/lib/ -lc'>> config.mak
