@@ -22,5 +22,4 @@
     -L '$SYSROOT'/usr/lib/ -lc' 
 
 echo '#define CONFIG_TCC_STATIC 1
-#define CONFIG_TCC_SEMLOCK 0
-#define TARGETOS_stanix 1' >> config.h
+#define CONFIG_TCC_SEMLOCK 0' >> config.h

@@ -1,24 +1,20 @@
 diff --git a/Makefile b/Makefile
-index 2a7b774..063946e 100644
+index 2a7b774..3ac22be 100644
 --- a/Makefile
 +++ b/Makefile
-@@ -36,12 +36,12 @@ ifdef CONFIG_WIN32
+@@ -36,7 +36,10 @@ ifdef CONFIG_WIN32
   NATIVE_TARGET = $(ARCH)-win$(if $(findstring arm,$(ARCH)),ce,32)
  else
   CFG = -unx
 - LIBS+=-lm
-+# LIBS+=-lm
++ # don't put -lm on stanix
++ ifneq ($(CONFIG_stanix),yes)
++  LIBS+=-lm
++ endif
   ifneq ($(CONFIG_ldl),no)
--  LIBS+=-ldl
-+#  LIBS+=-ldl
+   LIBS+=-ldl
   endif
-  ifneq ($(CONFIG_pthread),no)
--  LIBS+=-lpthread
-+#  LIBS+=-lpthread
-  endif
-  # make libtcc as static or dynamic library?
-  ifeq ($(CONFIG_static),no)
-@@ -118,6 +118,9 @@ DEF-c67            = -DTCC_TARGET_C67 -w # disable warnigs
+@@ -118,6 +121,9 @@ DEF-c67            = -DTCC_TARGET_C67 -w # disable warnigs
  DEF-x86_64-FreeBSD = $(DEF-x86_64) -DTARGETOS_FreeBSD
  DEF-x86_64-NetBSD  = $(DEF-x86_64) -DTARGETOS_NetBSD
  DEF-x86_64-OpenBSD = $(DEF-x86_64) -DTARGETOS_OpenBSD
@@ -28,6 +24,28 @@ index 2a7b774..063946e 100644
  
  ifeq ($(INCLUDED),no)
  # --------------------------------------------------------------------------
+diff --git a/configure b/configure
+index cc55ab2..879806a 100755
+--- a/configure
++++ b/configure
+@@ -373,6 +373,9 @@ case $targetos in
+   DragonFly|OpenBSD|FreeBSD|NetBSD)
+     confvars_set BSD ldl=no
+     ;;
++  stanix)
++    confvars_set stanix ldl=no pthread=no
++    ;;
+   Android|Termux)
+     if test "$targetos" = "Termux"; then
+       targetos=Android
+@@ -658,6 +661,7 @@ for v in $cpu $confvars ; do
+     CONFIG_WIN32=yes)       print_num TCC_TARGET_PE 1 ;;
+     CONFIG_OSX=yes)         print_num TCC_TARGET_MACHO 1 ;;
+     CONFIG_Android=yes)     print_num TARGETOS_ANDROID 1 ;;
++    CONFIG_stanix=yes)      print_num TARGETOS_STANIX 1 ;;
+     CONFIG_BSD=yes)         print_num TARGETOS_$targetos 1
+       case "$targetos" in
+         FreeBSD)    default tcc_elfinterp "/libexec/ld-elf.so.1";;
 diff --git a/tcc.c b/tcc.c
 index 3221ed4..d069145 100644
 --- a/tcc.c
