@@ -23,7 +23,8 @@ and to make a package
 NOTE : packages are avalibes in ./packages/ as tar archives
 ## list
 list of all avalibles packages and their status
-- tsh : very buggy and segfault
+- tsh : 100% work with all features enable
+- tutils : fully working
 - doomgeneric : start but crash at some point (very buggy)
 - binutils : can make executable for stanix but can't run on it
 - tlibc (not present on this repo) : stable
