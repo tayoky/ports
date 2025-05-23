@@ -26,6 +26,8 @@ list of all avalibles packages and their status
 - tsh : 100% work with all features enable
 - tutils : fully working
 - doomgeneric : start but crash at some point (very buggy)
+- tcc : `tcc --version` work but trying to compile crash (GP in tlibc's malloc)
+- kritic : not tested but should work
 - binutils : can make executable for stanix but can't run on it
 - tlibc (not present on this repo) : stable
 # configure options
