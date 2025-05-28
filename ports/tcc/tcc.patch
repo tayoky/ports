@@ -1,5 +1,5 @@
 diff --git a/Makefile b/Makefile
-index 2a7b774..3ac22be 100644
+index 2a7b774..b2fa77b 100644
 --- a/Makefile
 +++ b/Makefile
 @@ -36,7 +36,10 @@ ifdef CONFIG_WIN32
@@ -47,7 +47,7 @@ index cc55ab2..879806a 100755
        case "$targetos" in
          FreeBSD)    default tcc_elfinterp "/libexec/ld-elf.so.1";;
 diff --git a/tcc.c b/tcc.c
-index 3221ed4..d069145 100644
+index 3221ed4..690cecf 100644
 --- a/tcc.c
 +++ b/tcc.c
 @@ -200,6 +200,8 @@ static const char version[] =
@@ -60,22 +60,23 @@ index 3221ed4..d069145 100644
          " Linux"
  #endif
 diff --git a/tcc.h b/tcc.h
-index 452a723..2b98265 100644
+index 452a723..6031d54 100644
 --- a/tcc.h
 +++ b/tcc.h
-@@ -2000,3 +2000,7 @@ PUB_FUNC void tcc_exit_state(TCCState *s1);
+@@ -2000,3 +2000,8 @@ PUB_FUNC void tcc_exit_state(TCCState *s1);
  # define TCC_SET_STATE(fn) (tcc_enter_state(s1),fn)
  # define _tcc_error use_tcc_error_noabort
  #endif
 +
++#ifdef __stanix__
 +typedef long ucontext_t[1];
-+typedef long siginfo_t[1];
++#endif
 +extern char **environ;
 diff --git a/tccpp.c b/tccpp.c
-index 380fb66..7bd1a03 100644
+index d5c01fe..103501f 100644
 --- a/tccpp.c
 +++ b/tccpp.c
-@@ -3576,6 +3576,9 @@ static const char * const target_os_defs =
+@@ -3597,6 +3597,9 @@ static const char * const target_os_defs =
      "__NetBSD__\0"
  # elif TARGETOS_OpenBSD
      "__OpenBSD__\0"
@@ -86,18 +87,18 @@ index 380fb66..7bd1a03 100644
      "__linux__\0"
      "__linux\0"
 diff --git a/tccrun.c b/tccrun.c
-index 6c0dab6..38df7bd 100644
+index 37e6c9b..ce33f6c 100644
 --- a/tccrun.c
 +++ b/tccrun.c
-@@ -76,7 +76,7 @@ static void rt_exit(rt_frame *f, int code);
+@@ -75,7 +75,7 @@ static void rt_exit(rt_frame *f, int code);
+ /* defined when included from lib/bt-exe.c */
  #ifndef CONFIG_TCC_BACKTRACE_ONLY
  
- #ifndef _WIN32
--# include <sys/mman.h>
-+//# include <sys/mman.h>
+-#ifndef _WIN32
++#if !defined(_WIN32) && !defined(__stanix__)
+ # include <sys/mman.h>
  #endif
  
- static int protect_pages(void *ptr, unsigned long length, int mode);
 @@ -437,7 +437,7 @@ redo:
  
  static int protect_pages(void *ptr, unsigned long length, int mode)
@@ -135,19 +136,16 @@ index 6c0dab6..38df7bd 100644
  }
  
  #ifdef _WIN64
-@@ -1170,9 +1172,9 @@ static int rt_error(rt_frame *f, const char *fmt, ...)
- /* ------------------------------------------------------------- */
+@@ -1173,7 +1175,7 @@ static int rt_error(rt_frame *f, const char *fmt, ...)
  
  #ifndef _WIN32
--# include <signal.h>
-+//# include <signal.h>
- # ifndef __OpenBSD__
--#  include <sys/ucontext.h>
-+//#  include <sys/ucontext.h>
+ # include <signal.h>
+-# ifndef __OpenBSD__
++# if !defined(__OpenBSD__) && !defined(__stanix__)
+ #  include <sys/ucontext.h>
  # endif
  #else
- # define ucontext_t CONTEXT
-@@ -1180,7 +1182,7 @@ static int rt_error(rt_frame *f, const char *fmt, ...)
+@@ -1182,7 +1184,7 @@ static int rt_error(rt_frame *f, const char *fmt, ...)
  
  /* translate from ucontext_t* to internal rt_context * */
  static void rt_getcontext(ucontext_t *uc, rt_frame *rc)
@@ -156,7 +154,7 @@ index 6c0dab6..38df7bd 100644
  #if defined _WIN64
      rc->ip = uc->Rip;
      rc->fp = uc->Rbp;
-@@ -1205,7 +1207,7 @@ static void rt_getcontext(ucontext_t *uc, rt_frame *rc)
+@@ -1207,7 +1209,7 @@ static void rt_getcontext(ucontext_t *uc, rt_frame *rc)
  # elif defined(__OpenBSD__)
      rc->ip = uc->sc_eip;
      rc->fp = uc->sc_ebp;
@@ -165,7 +163,7 @@ index 6c0dab6..38df7bd 100644
      rc->ip = uc->uc_mcontext.gregs[EIP];
      rc->fp = uc->uc_mcontext.gregs[EBP];
  # else
-@@ -1247,7 +1249,7 @@ static void rt_getcontext(ucontext_t *uc, rt_frame *rc)
+@@ -1249,7 +1251,7 @@ static void rt_getcontext(ucontext_t *uc, rt_frame *rc)
      rc->ip = uc->uc_mcontext->__ss.__pc;
      rc->fp = uc->uc_mcontext->__ss.__fp;
  #elif defined(__aarch64__) && defined(__FreeBSD__)
@@ -174,7 +172,7 @@ index 6c0dab6..38df7bd 100644
      rc->fp = uc->uc_mcontext.mc_gpregs.gp_x[29];
  #elif defined(__aarch64__) && defined(__NetBSD__)
      rc->ip = uc->uc_mcontext.__gregs[_REG_PC];
-@@ -1265,6 +1267,7 @@ static void rt_getcontext(ucontext_t *uc, rt_frame *rc)
+@@ -1267,6 +1269,7 @@ static void rt_getcontext(ucontext_t *uc, rt_frame *rc)
      rc->ip = uc->uc_mcontext.__gregs[REG_PC];
      rc->fp = uc->uc_mcontext.__gregs[REG_S0];
  #endif
@@ -182,7 +180,7 @@ index 6c0dab6..38df7bd 100644
  }
  
  /* ------------------------------------------------------------- */
-@@ -1272,6 +1275,7 @@ static void rt_getcontext(ucontext_t *uc, rt_frame *rc)
+@@ -1274,6 +1277,7 @@ static void rt_getcontext(ucontext_t *uc, rt_frame *rc)
  /* signal handler for fatal errors */
  static void sig_error(int signum, siginfo_t *siginf, void *puc)
  {
@@ -190,7 +188,7 @@ index 6c0dab6..38df7bd 100644
      rt_frame f;
      rt_getcontext(puc, &f);
  
-@@ -1307,7 +1311,7 @@ static void sig_error(int signum, siginfo_t *siginf, void *puc)
+@@ -1309,7 +1313,7 @@ static void sig_error(int signum, siginfo_t *siginf, void *puc)
          sigaddset(&s, signum);
          sigprocmask(SIG_UNBLOCK, &s, NULL);
      }
@@ -199,7 +197,7 @@ index 6c0dab6..38df7bd 100644
  }
  
  #ifndef SA_SIGINFO
-@@ -1316,23 +1320,22 @@ static void sig_error(int signum, siginfo_t *siginf, void *puc)
+@@ -1318,23 +1322,22 @@ static void sig_error(int signum, siginfo_t *siginf, void *puc)
  
  /* Generate a stack backtrace when a CPU exception occurs. */
  static void set_exception_handler(void)
@@ -229,7 +227,7 @@ index 6c0dab6..38df7bd 100644
      {
          stack_t ss;
          static unsigned char stack[SIGSTKSZ] __attribute__((aligned(16)));
-@@ -1342,7 +1345,7 @@ static void set_exception_handler(void)
+@@ -1344,7 +1347,7 @@ static void set_exception_handler(void)
          ss.ss_flags = 0;
          sigaltstack(&ss, NULL);
      }
