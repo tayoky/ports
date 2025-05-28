@@ -18,9 +18,9 @@ index 2a7b774..3ac22be 100644
  DEF-x86_64-FreeBSD = $(DEF-x86_64) -DTARGETOS_FreeBSD
  DEF-x86_64-NetBSD  = $(DEF-x86_64) -DTARGETOS_NetBSD
  DEF-x86_64-OpenBSD = $(DEF-x86_64) -DTARGETOS_OpenBSD
-+DEF-x86_64-stanix  = $(DEF-x86_64) -DTARGETOS_stanix
-+DEF-i386-stanix    = $(DEF-i386)   -DTARGETOS_stanix
-+DEF-arm64-stanix   = $(DEF-arm64)  -DTARGETOS_stanix
++DEF-x86_64-stanix  = $(DEF-x86_64) -DTARGETOS_STANIX
++DEF-i386-stanix    = $(DEF-i386)   -DTARGETOS_STANIX
++DEF-arm64-stanix   = $(DEF-arm64)  -DTARGETOS_STANIX
  
  ifeq ($(INCLUDED),no)
  # --------------------------------------------------------------------------
@@ -54,7 +54,7 @@ index 3221ed4..d069145 100644
          " OpenBSD"
  #elif TARGETOS_NetBSD
          " NetBSD"
-+#elif TARGETOS_stanix
++#elif TARGETOS_STANIX
 +        " stanix"
  #else
          " Linux"
@@ -79,7 +79,7 @@ index 380fb66..7bd1a03 100644
      "__NetBSD__\0"
  # elif TARGETOS_OpenBSD
      "__OpenBSD__\0"
-+# elif TARGETOS_stanix
++# elif TARGETOS_STANIX
 +    "__stanix__\0"
 +    "__stanix\0"
  # else
