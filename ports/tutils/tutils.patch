@@ -16,15 +16,24 @@ index 0669744..b5bddfc 100644
  install : ${EXE}
  	cp ${EXE} ${PREFIX}/bin
  config.mk :
+diff --git a/src/ls.c b/src/ls.c
+index 1750c23..7af9609 100644
+--- a/src/ls.c
++++ b/src/ls.c
+@@ -32,7 +32,7 @@ void list_add(char *str){
+ 	}
+ 	entry_count++;
+ 	list = realloc(list,entry_count * sizeof(char *));
+-	list[entry_count-1] = str;
++	list[entry_count-1] = strdup(str);
+ }
+ 
+ void info(char *path){
 diff --git a/src/test.c b/src/test.c
-index a1d226d..400c375 100644
+index a1d226d..8dddc9b 100644
 --- a/src/test.c
 +++ b/src/test.c
-@@ -1,9 +1,16 @@
- #include <stdio.h>
- #include <string.h>
- #include <sys/stat.h>
-+#include <sys/types.h>
+@@ -4,6 +4,12 @@
  #include <unistd.h>
  
  //simple test command
