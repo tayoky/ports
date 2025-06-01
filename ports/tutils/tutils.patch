@@ -1,21 +1,16 @@
 diff --git a/makefile b/makefile
-index 0669744..b5bddfc 100644
+index 0669744..ab38dd1 100644
 --- a/makefile
 +++ b/makefile
-@@ -8,9 +8,11 @@ CFLAGS += -DHOST="${HOST}" ${OPT}
+@@ -8,7 +8,7 @@ CFLAGS += -DHOST="${HOST}" ${OPT}
  
  all :  ${EXE}
  % : src/%.c
 -	${CC} ${CFLAGS} -o $@ $^
-+	${CC} ${CFLAGS} -o $@.o -c $^
-+	#we need to make a raw call to LD
-+	${LD} ${LDFLAGS} -o $@ $@.o ${SYSROOT}/usr/lib/crt0.o -L ${SYSROOT}/usr/lib -lc
++	${CC} -static ${CFLAGS} -o $@ $^
  clean :
--	rm -f ${EXE}
-+	rm -f ${EXE} *.o
+ 	rm -f ${EXE}
  install : ${EXE}
- 	cp ${EXE} ${PREFIX}/bin
- config.mk :
 diff --git a/src/ls.c b/src/ls.c
 index 1750c23..7af9609 100644
 --- a/src/ls.c
