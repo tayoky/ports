@@ -1,20 +1,8 @@
 diff --git a/Makefile b/Makefile
-index 2a7b774..b2fa77b 100644
+index 2a7b774..6d3ed7e 100644
 --- a/Makefile
 +++ b/Makefile
-@@ -36,7 +36,10 @@ ifdef CONFIG_WIN32
-  NATIVE_TARGET = $(ARCH)-win$(if $(findstring arm,$(ARCH)),ce,32)
- else
-  CFG = -unx
-- LIBS+=-lm
-+ # don't put -lm on stanix
-+ ifneq ($(CONFIG_stanix),yes)
-+  LIBS+=-lm
-+ endif
-  ifneq ($(CONFIG_ldl),no)
-   LIBS+=-ldl
-  endif
-@@ -118,6 +121,9 @@ DEF-c67            = -DTCC_TARGET_C67 -w # disable warnigs
+@@ -118,6 +118,9 @@ DEF-c67            = -DTCC_TARGET_C67 -w # disable warnigs
  DEF-x86_64-FreeBSD = $(DEF-x86_64) -DTARGETOS_FreeBSD
  DEF-x86_64-NetBSD  = $(DEF-x86_64) -DTARGETOS_NetBSD
  DEF-x86_64-OpenBSD = $(DEF-x86_64) -DTARGETOS_OpenBSD
@@ -24,6 +12,15 @@ index 2a7b774..b2fa77b 100644
  
  ifeq ($(INCLUDED),no)
  # --------------------------------------------------------------------------
+@@ -253,7 +256,7 @@ endif
+ 
+ # convert "include/tccdefs.h" to "tccdefs_.h"
+ %_.h : include/%.h conftest.c
+-	$S$(CC) -DC2STR $(filter %.c,$^) -o c2str.exe && ./c2str.exe $< $@
++	gcc -DC2STR $(filter %.c,$^) -o c2str.exe && ./c2str.exe $< $@
+ 
+ # target specific object rule
+ $(X)%.o : %.c $(LIBTCC_INC)
 diff --git a/configure b/configure
 index cc55ab2..879806a 100755
 --- a/configure
