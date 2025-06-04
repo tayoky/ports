@@ -4,6 +4,9 @@
 #just in case it wasen't aready done
 . ./config.mk
 
+export CC
+export LD
+
 cd ports/$1
 
 #SRC is where all the script are
@@ -24,7 +27,10 @@ else
 	#clone the repo
 	mkdir -p git
 	cd git
-	git clone --depth 1 $git --recurse $1
+	git clone --depth=1 $git --recurse $1
+	if [ "$commit" != "" ] ; then
+		(cd $1 && git fetch --depth=1 origin $commit && git checkout $commit)
+	fi
 fi
 
 #now apply the patch if needed
