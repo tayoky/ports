@@ -15,3 +15,25 @@ index de2480f..60d726f 100644
  #
  # Output directories as variables
  #
+diff --git a/include/utils/terminal.h b/include/utils/terminal.h
+index ad8b131..27aa91a 100644
+--- a/include/utils/terminal.h
++++ b/include/utils/terminal.h
+@@ -6,7 +6,7 @@
+ /*
+     GCC Colour Escape Codes (More Portable)
+ */
+-#if defined(__GNUC__) && !defined(__MINGW32__)
++#if defined(__GNUC__) && (!defined(__MINGW32__)) && !defined(__stanix__)
+ #define BLACK   "\033[30m"
+ #define RED     "\033[31m"
+ #define GREEN   "\033[32m"
+@@ -34,7 +34,7 @@
+     ofc it does, to clarify this only happens in the legacy CMD not
+     the new Microsoft Terminal.
+ */
+-#if defined(__MINGW32__)
++#if defined(__MINGW32__) || defined(__stanix__)
+ #define BLACK   "\x1b[0;30m"
+ #define RED     "\x1b[0;31m"
+ #define GREEN   "\x1b[0;32m"
