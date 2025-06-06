@@ -1,45 +1,49 @@
 #!/bin/sh
 
-#source the config
-#just in case it wasen't aready done
-. ./config.mk
+#default build and configure
+configure() {
+	true
+}
 
+build() {
+	true
+}
+
+#source the config and export
+. ./config.mk
 export CC
 export LD
 
-cd ports/$1
-
-#SRC is where all the script are
-export SRC="$PWD"
+#SRC is the directory of the port
+export SRC="$PWD/ports/$1"
 
 #source the config file
-. ./$1.ini
+. $SRC/$1.sh
 
-cd ../..
-
-#if tar download tar instead of clonging repo
-if [ "$tar" != "" ] ; then
+#if tar download tar instead of cloning repo
+if [ "$TAR" != "" ] ; then
 	mkdir -p tar
 	cd tar
-	curl "$tar" > $(basename "$tar")
-	exit
+	curl $TAR > $(basename "$TAR")
+	tar xf $TAR
 else
 	#clone the repo
 	mkdir -p git
 	cd git
-	git clone --depth=1 $git --recurse $1
-	if [ "$commit" != "" ] ; then
-		(cd $1 && git fetch --depth=1 origin $commit && git checkout $commit)
+	git clone --depth=1 $GIT --recurse $1
+	if [ "$COMMIT" != "" ] ; then
+		(cd $1 && git fetch --depth=1 origin $COMMIT && git checkout $COMMIT)
 	fi
 fi
+cd $1
 
 #now apply the patch if needed
-if [ "$patch" != "" ] ; then
-	echo $(cd $1 && git apply ${SRC}/$patch)
+if [ -d $SRC/patch ] ; then
+	git apply $SRC/patch/*.patch
 fi
 
 #run configuration if any
-(cd $1 ; $configure)
+(configure)
 
 #run build if any
-(cd $1 ; $build)
+(build)

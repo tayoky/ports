@@ -1,0 +1,9 @@
+GIT=https://github.com/Wrench56/KritiC
+
+build() {
+	make static CC=$CC LD=$LD
+}
+
+install() {
+	mkdir -p $PREFIX/lib && cp build/libkritic.a $PREFIX/lib
+}
