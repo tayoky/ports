@@ -13,6 +13,10 @@ build() {
 . ./config.mk
 export CC
 export LD
+export AS
+export AR
+export NM
+export PKGCONFIG
 
 #SRC is the directory of the port
 export SRC="$PWD/ports/$1"
