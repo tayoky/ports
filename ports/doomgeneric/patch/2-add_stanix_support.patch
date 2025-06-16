@@ -1,6 +1,6 @@
 diff --git a/doomgeneric/Makefile.stanix b/doomgeneric/Makefile.stanix
 new file mode 100644
-index 0000000..52012cc
+index 0000000..5a0126a
 --- /dev/null
 +++ b/doomgeneric/Makefile.stanix
 @@ -0,0 +1,37 @@
@@ -41,11 +41,9 @@ index 0000000..52012cc
 +%.o : %.s
 +	${NASM} ${ASMFLAGS} $< -o $@
 +
-+clean :
-+	rm -f ${OBJ}
 diff --git a/doomgeneric/doomgeneric_stanix.c b/doomgeneric/doomgeneric_stanix.c
 new file mode 100644
-index 0000000..6986ff7
+index 0000000..2ab805a
 --- /dev/null
 +++ b/doomgeneric/doomgeneric_stanix.c
 @@ -0,0 +1,147 @@
@@ -91,7 +89,7 @@ index 0000000..6986ff7
 +
 +    // now open keyboard device
 +    printf("open keyboard\n");
-+    keyboard_fd = open("/dev/kb0", O_RDONLY);
++    keyboard_fd = open("/dev/kb0", O_RDONLY | O_NONBLOCK);
 +    if (keyboard_fd < 0) {
 +        // fail to open
 +        perror("open /dev/kb0");
@@ -106,7 +104,7 @@ index 0000000..6986ff7
 +
 +void DG_SleepMs(uint32_t ms) { usleep(ms * 1000); }
 +
-+// i don't like the fact that it is an uint32_T
++// i don't like the fact that it is an uint32_t
 +// should be an uint64_t instead
 +uint32_t DG_GetTicksMs() {
 +    // get the time
@@ -129,43 +127,43 @@ index 0000000..6986ff7
 +    }
 +
 +    *pressed = event.ie_key.flags & IE_KEY_PRESS;
-+    if (event.ie_key.flags & IE_KEY_GRAPH) {
-+        switch (event.ie_key.c) {
-+            case 'w':
-+                *key = KEY_UPARROW;
-+                return 1;
-+            case 'a':
-+                *key = KEY_LEFTARROW;
-+                return 1;
-+            case 's':
-+                *key = KEY_DOWNARROW;
-+                return 1;
-+            case 'd':
-+                *key = KEY_RIGHTARROW;
-+                return 1;
-+            case ' ':
-+                *key = KEY_USE;
-+                return 1;
-+            case '\n':
-+                *key = KEY_ENTER;
-+                break;
-+        }
-+    }
-+
-+    // check for special keys
++   
 +    switch (event.ie_key.scancode) {
-+        case 0x02:
++        case 0x01:
 +            *key = KEY_ESCAPE;
 +            return 1;
++        case 0x1C:
++            *key = KEY_ENTER;
++            return 1;
++        case 0x2A:
++        case 0x36:
++            *key = KEY_RSHIFT;
++            return 1;
++        case 0x1D:
++            *key = KEY_FIRE;
++            return 1;
++        case 0x91:
++            *key = KEY_UPARROW;
++            return 1;
 +        case 0x1E:
-+            *key = KEY_RSHIFT;
++            *key = KEY_LEFTARROW;
 +            return 1;
-+        case 0x2B:
-+            *key = KEY_RSHIFT;
++        case 0x1F:
++            *key = KEY_DOWNARROW;
 +            return 1;
-+    }
++        case 0x20:
++            *key = KEY_RIGHTARROW;
++            return 1;
++        case 0x39:
++            *key = KEY_USE;
++            return 1;
++        case 0x15:
++            *key = 'y';
++            return 1;
 +
-+    return 0;
++    }
++    *key = event.ie_key.scancode;
++    return 1;
 +}
 +
 +void DG_DrawFrame() {
