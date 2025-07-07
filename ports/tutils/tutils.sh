@@ -1,5 +1,5 @@
 GIT=https://github.com/tayoky/tutils
-COMMIT=98e23f2d115dfdedf7cdbbd642b78050ec5e27cf
+COMMIT=2e40709d590a138738dd355cdfd050317529fbab
 
 configure() {
 	#we need to specify custom CFLAGS
