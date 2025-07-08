@@ -28,8 +28,15 @@ export SRC="$PWD/ports/$1"
 if [ "$TAR" != "" ] ; then
 	mkdir -p tar
 	cd tar
-	curl $TAR > $(basename "$TAR")
-	tar xf $TAR
+	NAME=$(basename "$TAR")
+	if [ ! -s $NAME ] ; then
+		echo "download $TAR"
+		curl $TAR > $NAME
+	fi
+	if [ ! -d $1 ] ; then
+		tar xf $NAME
+		mv ${NAME%%.tar*} $1
+	fi
 else
 	#clone the repo
 	mkdir -p git
