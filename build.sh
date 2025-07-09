@@ -50,7 +50,10 @@ cd $1
 
 #now apply the patch if needed
 if [ -d $SRC/patch ] ; then
-	git apply $SRC/patch/*.patch
+	echo "apply patch"
+	for PATCH in $(ls $SRC/patch) ; do
+		patch -ruN -f -p1 -i $SRC/patch/$PATCH
+	done
 fi
 
 #run configuration if any
