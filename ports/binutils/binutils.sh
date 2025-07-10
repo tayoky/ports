@@ -11,9 +11,9 @@ configure() {
 }
 
 build(){
-	make all
+	make all -j$NPROC
 }
 
-insatll(){
+install(){
 	make install
 }

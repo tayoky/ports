@@ -24,6 +24,9 @@ export SRC="$PWD/ports/$1"
 #source the config file
 . $SRC/$1.sh
 
+#some configs stuff
+NPROC=$(nproc)
+
 #if tar download tar instead of cloning repo
 if [ "$TAR" != "" ] ; then
 	mkdir -p tar
