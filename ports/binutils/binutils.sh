@@ -7,7 +7,7 @@ configure() {
 	--prefix=$PREFIX \
 	--with-sysroot=/ \
 	--with-build-sysroot=$SYSROOT \
-	--disable-nls --disable-werror
+	--disable-nls --disable-werror --disable-tls
 }
 
 build(){
