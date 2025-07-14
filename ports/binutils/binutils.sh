@@ -15,5 +15,5 @@ build(){
 }
 
 install(){
-	make install
+	make install-strip
 }
