@@ -1,5 +1,5 @@
 GIT=https://github.com/StercusMax/tsed
-COMMIT=d540eb7967d6446d887086aface2172bd918d289
+COMMIT=b06cfec6e119e0e1c1771068558a1688c338dde8
 
 configure() {
 	true
