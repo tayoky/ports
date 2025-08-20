@@ -41,12 +41,16 @@ index 0000000..5a0126a
 +%.o : %.s
 +	${NASM} ${ASMFLAGS} $< -o $@
 +
+diff --git a/doomgeneric/doom b/doomgeneric/doom
+new file mode 100755
+index 0000000..b6ecc29
+Binary files /dev/null and b/doomgeneric/doom differ
 diff --git a/doomgeneric/doomgeneric_stanix.c b/doomgeneric/doomgeneric_stanix.c
 new file mode 100644
-index 0000000..2ab805a
+index 0000000..fddee2d
 --- /dev/null
 +++ b/doomgeneric/doomgeneric_stanix.c
-@@ -0,0 +1,147 @@
+@@ -0,0 +1,150 @@
 +#include <errno.h>
 +#include <fcntl.h>
 +#include <input.h>
@@ -55,6 +59,8 @@ index 0000000..2ab805a
 +#include <stdlib.h>
 +#include <string.h>
 +#include <sys/time.h>
++#include <sys/fb.h>
++#include <sys/ioctl.h>
 +#include <unistd.h>
 +
 +#include "doomgeneric.h"
@@ -64,8 +70,8 @@ index 0000000..2ab805a
 +int keyboard_fd = -1;
 +
 +// todo get this with ioctl
-+size_t framebuffer_width = 640;
-+size_t framebuffer_height = 480;
++struct fb fb_info;
++
 +
 +// keep track of when the game started
 +uint64_t start_ms;
@@ -86,6 +92,7 @@ index 0000000..2ab805a
 +        perror("open /dev/fb0");
 +        abort();
 +    }
++    if(ioctl(framebuffer_fd,IOCTL_GET_FB_INFO,&fb_info));
 +
 +    // now open keyboard device
 +    printf("open keyboard\n");
@@ -169,9 +176,9 @@ index 0000000..2ab805a
 +void DG_DrawFrame() {
 +    // copy to the framebuffer device
 +    for (size_t i = 0; i < DOOMGENERIC_RESY; i++) {
-+        lseek(framebuffer_fd, i * framebuffer_width, SEEK_SET);
++        lseek(framebuffer_fd, i * fb_info.pitch, SEEK_SET);
 +        write(framebuffer_fd, DG_ScreenBuffer + i * DOOMGENERIC_RESX,
-+              DOOMGENERIC_RESX);
++              DOOMGENERIC_RESX * sizeof(pixel_t));
 +    }
 +}
 +
