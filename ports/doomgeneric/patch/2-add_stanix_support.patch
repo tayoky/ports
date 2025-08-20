@@ -43,14 +43,14 @@ index 0000000..5a0126a
 +
 diff --git a/doomgeneric/doom b/doomgeneric/doom
 new file mode 100755
-index 0000000..b6ecc29
+index 0000000..45a9fb2
 Binary files /dev/null and b/doomgeneric/doom differ
 diff --git a/doomgeneric/doomgeneric_stanix.c b/doomgeneric/doomgeneric_stanix.c
 new file mode 100644
-index 0000000..fddee2d
+index 0000000..a29905a
 --- /dev/null
 +++ b/doomgeneric/doomgeneric_stanix.c
-@@ -0,0 +1,150 @@
+@@ -0,0 +1,155 @@
 +#include <errno.h>
 +#include <fcntl.h>
 +#include <input.h>
@@ -102,6 +102,7 @@ index 0000000..fddee2d
 +        perror("open /dev/kb0");
 +        abort();
 +    }
++    ioctl(keyboard_fd,I_INPUT_GET_CONTROL,NULL);
 +
 +    // get the time
 +    struct timeval current_time;
@@ -149,15 +150,19 @@ index 0000000..fddee2d
 +        case 0x1D:
 +            *key = KEY_FIRE;
 +            return 1;
-+        case 0x91:
++        case 0x80 + 0x48:
++        case 0x11:
 +            *key = KEY_UPARROW;
 +            return 1;
++        case 0x80 + 0x4B:
 +        case 0x1E:
 +            *key = KEY_LEFTARROW;
 +            return 1;
++        case 0x80 + 0x50:
 +        case 0x1F:
 +            *key = KEY_DOWNARROW;
 +            return 1;
++        case 0x80 + 0x4D:
 +        case 0x20:
 +            *key = KEY_RIGHTARROW;
 +            return 1;
