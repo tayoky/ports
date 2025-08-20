@@ -1,0 +1,26 @@
+diff --git a/doomgeneric/i_system.c b/doomgeneric/i_system.c
+index 65ab39d..7e4e1e7 100644
+--- a/doomgeneric/i_system.c
++++ b/doomgeneric/i_system.c
+@@ -20,6 +20,11 @@
+ #include <stdlib.h>
+ #include <stdio.h>
+ #include <string.h>
++#ifdef __stanix__
++#include <input.h>
++#include <sys/ioctl.h>
++extern int keyboard_fd;
++#endif
+ 
+ #include <stdarg.h>
+ 
+@@ -245,6 +250,9 @@ void I_BindVariables(void)
+ 
+ void I_Quit (void)
+ {
++    #ifdef __stanix__
++    ioctl(keyboard_fd,I_INPUT_DROP_CONTROL,NULL);
++    #endif
+     atexit_listentry_t *entry;
+ 
+     // Run through all exit functions
