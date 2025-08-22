@@ -31,7 +31,7 @@ new file mode 100644
 index 0000000..27b41a5
 --- /dev/null
 +++ b/doomgeneric/doomgeneric_stanix.c
-@@ -0,0 +1,162 @@
+@@ -0,0 +1,158 @@
 +#include <errno.h>
 +#include <fcntl.h>
 +#include <input.h>
@@ -190,7 +190,3 @@ index 0000000..27b41a5
 +    }
 +    return 0;
 +}
-+
-+// this function don't exist on stanix so stub here
-+
-+int rename(const char *src, const char *dest) { return -ENOSYS; }
