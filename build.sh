@@ -46,7 +46,10 @@ else
 	cd git
 	git clone --depth=1 $GIT --recurse $1
 	if [ "$COMMIT" != "" ] ; then
-		(cd $1 && git fetch --depth=1 origin $COMMIT && git checkout $COMMIT)
+		(cd $1 && git git fetch --depth=1 origin $COMMIT && git checkout --detach $COMMIT )
+	fi
+	if [ "$TAG" != "" ] ; then
+		(cd $1 && git fetch --depth=1 origin refs/tags/$TAG:refs/tags/$TAG && git checkout --detach $TAG)
 	fi
 fi
 cd $1
