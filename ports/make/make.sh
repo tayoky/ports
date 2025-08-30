@@ -10,5 +10,5 @@ build() {
 }
 
 install() {
-	make install DESTDIR=$PREFIX
+	make install DESTDIR=${PREFIX%%/usr}
 }
