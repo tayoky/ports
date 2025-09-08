@@ -27,6 +27,8 @@ export SRC="$PWD/ports/$1"
 #some configs stuff
 NPROC=$(nproc)
 
+FIRST=false
+
 #if tar download tar instead of cloning repo
 if [ "$TAR" != "" ] ; then
 	mkdir -p tar
@@ -39,27 +41,33 @@ if [ "$TAR" != "" ] ; then
 	if [ ! -d $1 ] ; then
 		tar xf $NAME
 		mv ${NAME%%.tar*} $1
+		FIRST=true
 	fi
 else
 	#clone the repo
 	mkdir -p git
 	cd git
-	git clone --depth=1 $GIT --recurse $1
-	if [ "$COMMIT" != "" ] ; then
-		(cd $1 && git fetch --depth=1 origin $COMMIT && git checkout --detach $COMMIT )
-	fi
-	if [ "$TAG" != "" ] ; then
-		(cd $1 && git fetch --depth=1 origin refs/tags/$TAG:refs/tags/$TAG && git checkout --detach $TAG)
+	if [ ! -d $1 ] ; then
+		git clone --depth=1 $GIT --recurse $1
+		if [ "$COMMIT" != "" ] ; then
+			(cd $1 && git fetch --depth=1 origin $COMMIT && git checkout --detach $COMMIT )
+		fi
+		if [ "$TAG" != "" ] ; then
+			(cd $1 && git fetch --depth=1 origin refs/tags/$TAG:refs/tags/$TAG && git checkout --detach $TAG)
+		fi
+		FIRST=true
 	fi
 fi
 cd $1
 
-#now apply the patch if needed
-if [ -d $SRC/patch ] ; then
-	echo "apply patch"
-	for PATCH in $(ls $SRC/patch) ; do
-		patch -ruN -f -p1 -i $SRC/patch/$PATCH
-	done
+if [ "$FIRST" = "true"] ; then 
+	#now apply the patch if needed
+	if [ -d $SRC/patch ] ; then
+		echo "apply patch"
+		for PATCH in $(ls $SRC/patch) ; do
+			patch -ruN -f -p1 -i $SRC/patch/$PATCH
+		done
+	fi
 fi
 
 #run configuration if any
