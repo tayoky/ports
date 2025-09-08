@@ -60,7 +60,7 @@ else
 fi
 cd $1
 
-if [ "$FIRST" = "true"] ; then 
+if [ "$FIRST" = "true" ] ; then 
 	#now apply the patch if needed
 	if [ -d $SRC/patch ] ; then
 		echo "apply patch"
