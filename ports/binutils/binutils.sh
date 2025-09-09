@@ -4,10 +4,11 @@ WEBSITE=https://www.gnu.org/software/binutils/
 configure() {
 	./configure --host=$HOST \
 	--target=$HOST \
-	--prefix=$PREFIX \
+	--prefix=/usr \
 	--with-sysroot=/ \
 	--with-build-sysroot=$SYSROOT \
-	--disable-nls --disable-werror --disable-tls
+	--disable-nls --disable-werror \
+	CFLAGS="-D_Thread_local=" #stupid tls workaround
 }
 
 build(){
@@ -15,5 +16,5 @@ build(){
 }
 
 install(){
-	make install-strip
+	make install-strip DESTDIR=${PREFIX%%/usr}
 }
