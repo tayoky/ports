@@ -12,20 +12,24 @@ build() {
 #source the config and export
 . ./config.mk
 export CC
+export CXX
 export LD
 export AS
 export AR
 export NM
+export STRIP
 export PKGCONFIG
 
 #SRC is the directory of the port
 export SRC="$PWD/ports/$1"
 
+
 #source the config file
 . $SRC/$1.sh
 
 #some configs stuff
-NPROC=$(nproc)
+export NPROC=$(nproc)
+export MESON_CROSS=$(realpath ./meson-cross.txt)
 
 FIRST=false
 

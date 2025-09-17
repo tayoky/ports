@@ -69,6 +69,15 @@ if [ "$CC" = "" ] ; then
 	fi
 fi
 
+if [ "$CXX" = "" ]; then
+	if ${PREV}g++ --version > /dev/null 2>/dev/null ; then
+		CXX="${PREV}g++"
+	else
+		echo "error : no linker found"
+		exit 1
+	fi
+fi
+
 if [ "$LD" = "" ]; then
 	if ${PREV}ld --version > /dev/null 2>/dev/null ; then
 		LD="${PREV}ld"
@@ -126,24 +135,27 @@ echo "LD=$LD" >> config.mk
 echo "AS=$AS" >> config.mk
 echo "AR=$AR" >> config.mk
 echo "NM=$NM" >> config.mk
+echo "CXX=$CXX" >> config.mk
 echo "STRIP=$STRIP" >> config.mk
 echo "PKGCONFIG=$PKGCONFIG" >> config.mk
 echo "SYSROOT=$SYSROOT" >> config.mk
 
 # create meson cross shit
+# and yes we assume little endian
 echo "#generated automatically by ./configure
 [binaries]
-c  = $CC
-ar = $AR
-ld = $LD
-as = $AS
-strip = $STRIP
+c   = '$CC'
+cpp = '$CXX'
+ar  = '$AR'
+ld  = '$LD'
+as  = '$AS'
+strip = '$STRIP'
 
 [host_machine]
 system     = '${HOST#*-}'
 cpu_family = '${HOST%%-*}'
 cpu        = '${HOST%%-*}'
-
+endian     = 'little'
 [properties]
 sys_root = '$SYSROOT'
 " > meson-cross.txt
