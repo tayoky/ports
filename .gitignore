@@ -1,5 +1,6 @@
 #config
 config.mk
+meson-cross.txt
 
 #compiled and object files
 *.lib

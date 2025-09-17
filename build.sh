@@ -36,7 +36,7 @@ if [ "$TAR" != "" ] ; then
 	NAME=$(basename "$TAR")
 	if [ ! -s $NAME ] ; then
 		echo "download $TAR"
-		curl $TAR > $NAME
+		curl -L $TAR -o $NAME
 	fi
 	if [ ! -d $1 ] ; then
 		tar xf $NAME
@@ -58,7 +58,7 @@ else
 	fi
 	FIRST=true
 fi
-cd $1
+cd $1 || exit 1
 
 if [ "$FIRST" = "true" ] ; then 
 	#now apply the patch if needed

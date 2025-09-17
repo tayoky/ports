@@ -78,6 +78,15 @@ if [ "$LD" = "" ]; then
 	fi
 fi
 
+if [ "$STRIP" = "" ]; then
+	if ${PREV}strip --version > /dev/null 2>/dev/null ; then
+		STRIP="${PREV}strip"
+	else
+		echo "error : no strip found"
+		exit 1
+	fi
+fi
+
 if [ "$AS" = "" ]; then
 	if ${PREV}as --version > /dev/null 2>/dev/null ; then
 		AS="${PREV}as"
@@ -117,5 +126,24 @@ echo "LD=$LD" >> config.mk
 echo "AS=$AS" >> config.mk
 echo "AR=$AR" >> config.mk
 echo "NM=$NM" >> config.mk
+echo "STRIP=$STRIP" >> config.mk
 echo "PKGCONFIG=$PKGCONFIG" >> config.mk
 echo "SYSROOT=$SYSROOT" >> config.mk
+
+# create meson cross shit
+echo "#generated automatically by ./configure
+[binaries]
+c  = $CC
+ar = $AR
+ld = $LD
+as = $AS
+strip = $STRIP
+
+[host_machine]
+system     = '${HOST#*-}'
+cpu_family = '${HOST%%-*}'
+cpu        = '${HOST%%-*}'
+
+[properties]
+sys_root = '$SYSROOT'
+" > meson-cross.txt
