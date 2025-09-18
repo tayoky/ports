@@ -1,4 +1,4 @@
-VERSION=25.2.2
+VERSION=25.0.7
 TAR="https://mesa3d.org/archive/mesa-$VERSION.tar.xz"
 
 configure() {
@@ -13,7 +13,8 @@ configure() {
       -D gallium-drivers=softpipe  \
       -D vulkan-drivers=[]   \
       -D valgrind=disabled \
-      -D glx=disabled
+      -D glx=disabled \
+      -D osmesa=true
 }
 
 build() {
