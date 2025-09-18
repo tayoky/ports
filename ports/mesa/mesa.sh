@@ -14,7 +14,8 @@ configure() {
       -D vulkan-drivers=[]   \
       -D valgrind=disabled \
       -D glx=disabled \
-      -D osmesa=true
+      -D osmesa=true \
+      -D llvm=disabled 
 }
 
 build() {
