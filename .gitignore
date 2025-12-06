@@ -1,6 +1,7 @@
 #config
 config.mk
 meson-cross.txt
+cmake-cross.cmake
 
 #compiled and object files
 *.lib

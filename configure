@@ -159,3 +159,18 @@ endian     = 'little'
 [properties]
 sys_root = '$SYSROOT'
 " > meson-cross.txt
+
+# now cmake corss shit
+echo "#generated automatically by ./configure
+set(CMAKE_SYSTEM_NAME ${HOST#*-})
+
+set(CMAKE_C_COMPILER   $CC)
+set(CMAKE_CXX_COMPILER $CXX)
+set(CMAKE_LINKER       $LD)
+
+set(CMAKE_FIND_ROOT_PATH \"$SYSROOT\")
+
+set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
+
+set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
+set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)" > cmake-cross.cmake
