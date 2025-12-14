@@ -1,5 +1,5 @@
 GIT=https://github.com/tayoky/tutils
-COMMIT=a0778b3a62c296cc8f9405cbe8dae9b16a6d2baf
+COMMIT=003331837a2cd24c9ec6f23780dd9fafad19479f
 
 configure() {
 
