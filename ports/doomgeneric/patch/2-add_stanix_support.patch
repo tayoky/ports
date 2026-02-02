@@ -31,7 +31,7 @@ new file mode 100644
 index 0000000..27b41a5
 --- /dev/null
 +++ b/doomgeneric/doomgeneric_stanix.c
-@@ -0,0 +1,158 @@
+@@ -0,0 +1,165 @@
 +#include <errno.h>
 +#include <fcntl.h>
 +#include <input.h>
@@ -41,6 +41,7 @@ index 0000000..27b41a5
 +#include <string.h>
 +#include <sys/time.h>
 +#include <sys/fb.h>
++#include <sys/mman.h>
 +#include <sys/ioctl.h>
 +#include <unistd.h>
 +
@@ -53,7 +54,7 @@ index 0000000..27b41a5
 +
 +// todo get this with ioctl
 +struct fb fb_info;
-+
++char *framebuffer;
 +
 +// keep track of when the game started
 +uint64_t start_ms;
@@ -63,8 +64,8 @@ index 0000000..27b41a5
 +    return time->tv_sec * 1000 + time->tv_usec / 1000;
 +}
 +
-+void DG_Quit(void){
-+    ioctl(keyboard_fd,I_INPUT_DROP_CONTROL,NULL);
++void DG_Quit(void) {
++    ioctl(keyboard_fd, I_INPUT_DROP_CONTROL, NULL);
 +}
 +
 +void DG_Init() {
@@ -78,7 +79,7 @@ index 0000000..27b41a5
 +        perror("open /dev/fb0");
 +        abort();
 +    }
-+    if(ioctl(framebuffer_fd,IOCTL_GET_FB_INFO,&fb_info));
++    if (ioctl(framebuffer_fd, IOCTL_GET_FB_INFO, &fb_info));
 +
 +    // now open keyboard device
 +    printf("open keyboard\n");
@@ -88,7 +89,15 @@ index 0000000..27b41a5
 +        perror("open /dev/kb0");
 +        abort();
 +    }
-+    ioctl(keyboard_fd,I_INPUT_GET_CONTROL,NULL);
++    ioctl(keyboard_fd, I_INPUT_GET_CONTROL, NULL);
++
++    // mmap framebuffer
++    printf("mmap framebuffer\n");
++    framebuffer = mmap(NULL, fb_info.pitch * fb_info.height, PROT_WRITE, MAP_SHARED, framebuffer_fd, 0);
++    if (framebuffer == MAP_FAILED) {
++        perror("mmap framebuffer");
++        abort();
++    }
 +
 +    // get the time
 +    struct timeval current_time;
@@ -123,43 +132,43 @@ index 0000000..27b41a5
 +    }
 +
 +    *pressed = event.ie_key.flags & IE_KEY_PRESS;
-+   
++
 +    switch (event.ie_key.scancode) {
-+        case 0x01:
-+            *key = KEY_ESCAPE;
-+            return 1;
-+        case 0x1C:
-+            *key = KEY_ENTER;
-+            return 1;
-+        case 0x2A:
-+        case 0x36:
-+            *key = KEY_RSHIFT;
-+            return 1;
-+        case 0x1D:
-+            *key = KEY_FIRE;
-+            return 1;
-+        case 0x80 + 0x48:
-+        case 0x11:
-+            *key = KEY_UPARROW;
-+            return 1;
-+        case 0x80 + 0x4B:
-+        case 0x1E:
-+            *key = KEY_LEFTARROW;
-+            return 1;
-+        case 0x80 + 0x50:
-+        case 0x1F:
-+            *key = KEY_DOWNARROW;
-+            return 1;
-+        case 0x80 + 0x4D:
-+        case 0x20:
-+            *key = KEY_RIGHTARROW;
-+            return 1;
-+        case 0x39:
-+            *key = KEY_USE;
-+            return 1;
-+        case 0x15:
-+            *key = 'y';
-+            return 1;
++    case 0x01:
++        *key = KEY_ESCAPE;
++        return 1;
++    case 0x1C:
++        *key = KEY_ENTER;
++        return 1;
++    case 0x2A:
++    case 0x36:
++        *key = KEY_RSHIFT;
++        return 1;
++    case 0x1D:
++        *key = KEY_FIRE;
++        return 1;
++    case 0x80 + 0x48:
++    case 0x11:
++        *key = KEY_UPARROW;
++        return 1;
++    case 0x80 + 0x4B:
++    case 0x1E:
++        *key = KEY_LEFTARROW;
++        return 1;
++    case 0x80 + 0x50:
++    case 0x1F:
++        *key = KEY_DOWNARROW;
++        return 1;
++    case 0x80 + 0x4D:
++    case 0x20:
++        *key = KEY_RIGHTARROW;
++        return 1;
++    case 0x39:
++        *key = KEY_USE;
++        return 1;
++    case 0x15:
++        *key = 'y';
++        return 1;
 +
 +    }
 +    *key = event.ie_key.scancode;
@@ -168,10 +177,8 @@ index 0000000..27b41a5
 +
 +void DG_DrawFrame() {
 +    // copy to the framebuffer device
-+    for (size_t i = 0; i < DOOMGENERIC_RESY; i++) {
-+        lseek(framebuffer_fd, i * fb_info.pitch, SEEK_SET);
-+        write(framebuffer_fd, DG_ScreenBuffer + i * DOOMGENERIC_RESX,
-+              DOOMGENERIC_RESX * sizeof(pixel_t));
++    for (size_t y = 0; y < DOOMGENERIC_RESY; y++) {
++        memcpy(framebuffer + y * fb_info.pitch, DG_ScreenBuffer + y * DOOMGENERIC_RESX, DOOMGENERIC_RESX * sizeof(pixel_t));
 +    }
 +}
 +
