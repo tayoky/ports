@@ -1,8 +1,7 @@
 GIT=https://github.com/tayoky/tutils
-COMMIT=2f4cc24ebb548c4e3f26a3e672cecdf19177bcc6
+COMMIT=6fdf8a2860b85705447841039ec2bd8b6726977d
 
 configure() {
-
 	./configure --host="$HOST" --with-CC="$CC" --prefix="$PREFIX"
 }
 
