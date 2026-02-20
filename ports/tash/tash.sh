@@ -1,5 +1,5 @@
 GIT=https://github.com/tayoky/tash
-COMMIT=c81635b7993f960e65ee842a6fe7cf44da241460
+COMMIT=b1dc57dd60829d5c5827f37fe7086b27adcdcc2a
 
 configure() {
 	./configure --host="$HOST" --cc=$CC --prefix=$PREFIX
