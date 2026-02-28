@@ -1,6 +1,7 @@
 VERSION="9.1.1485"
-#thnanks to bananymous for the github archive trick
+#thanks to bananymous for the github archive trick
 TAR="https://github.com/vim/vim/archive/refs/tags/v$VERSION.tar.gz"
+WEBSITE="https://www.vim.org"
 
 configure() {
 	./configure --host=$HOST --prefix=/usr \

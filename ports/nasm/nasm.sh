@@ -1,5 +1,6 @@
-VERSION=2.16.03
-TAR=https://www.nasm.us/pub/nasm/releasebuilds/$VERSION/nasm-$VERSION.tar.xz
+VERSION="2.16.03"
+TAR="https://www.nasm.us/pub/nasm/releasebuilds/$VERSION/nasm-$VERSION.tar.xz"
+WEBSITE="https://nasm.us"
 
 configure() {
 	#thanks bananymous for the --disable-gdb

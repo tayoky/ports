@@ -1,5 +1,6 @@
-VERSION='6.5'
+VERSION="6.5"
 TAR="https://ftp.gnu.org/gnu/ncurses/ncurses-$VERSION.tar.gz"
+WEBSITE=https://invisible-island.net/ncurses
 
 configure() {
 	./configure --host=$HOST --prefix=/usr \

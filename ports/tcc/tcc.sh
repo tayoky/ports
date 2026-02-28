@@ -1,4 +1,5 @@
-GIT=https://github.com/TinyCC/tinycc
+GIT="https://github.com/TinyCC/tinycc"
+WEBSITE="https://bellard.org/tcc/"
 
 configure() {
 	./configure --prefix=/ --sysroot=$SYSROOT --targetos=stanix --enable-static --cc=$CC --triplet=x86_64-stanix \

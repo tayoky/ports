@@ -1,5 +1,6 @@
-VERSION=25.0.7
+VERSION="25.0.7"
 TAR="https://mesa3d.org/archive/mesa-$VERSION.tar.xz"
+WEBSITE="https://mesa3d.org"
 
 configure() {
 	mkdir -p build
