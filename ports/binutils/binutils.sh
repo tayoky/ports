@@ -8,6 +8,7 @@ configure() {
 	--with-sysroot=/ \
 	--with-build-sysroot=$SYSROOT \
 	--disable-nls --disable-werror \
+	--enable-shared \
 	CFLAGS="-D_Thread_local=" #stupid tls workaround
 }
 
