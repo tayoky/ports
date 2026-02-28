@@ -1,4 +1,5 @@
-TAR=https://ftp.gnu.org/gnu/binutils/binutils-2.44.tar.xz
+VERSION=2.44
+TAR=https://ftp.gnu.org/gnu/binutils/binutils-$VERSION.tar.xz
 WEBSITE=https://www.gnu.org/software/binutils/
 
 configure() {

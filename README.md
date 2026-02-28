@@ -21,16 +21,10 @@ and to make a package
 ./package.sh XXX
 ```
 NOTE : packages are avalibes in ./packages/ as tar archives
+
 ## list
-list of all avalibles packages and their status
-- tsh : 100% work with all features enable
-- tutils : fully working
-- tash : working
-- doomgeneric : working
-- tcc : working
-- kritic : not tested but should work
-- binutils : can make executable for stanix but can't run on it
-- tlibc (not present on this repo) : stable
+For a list of packages see https://tayoky.github.io/stanix/packages
+
 # configure options
 - `--host=XXX`
 - `--prefix=XXX`
