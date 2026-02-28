@@ -19,10 +19,10 @@ if test -n "$DESC" ; then
 fi >> "$PAGE"
 
 echo "## infos" >> "$PAGE"
-test -n "$VERSION" && echo "version : $VERSION" >> "$PAGE"
-test -n "$WEBSITE" && echo "website : $WEBSITE" >> "$PAGE"
-test -n "$GIT"     && echo "git     : $GIT" >> "$PAGE"
-test -n "$TAR"     && echo "tar     : $TAR" >> "$PAGE"
+test -n "$VERSION" && echo "version : $VERSION  " >> "$PAGE"
+test -n "$WEBSITE" && echo "website : [$WEBSITE]($WEBSITE)  " >> "$PAGE"
+test -n "$GIT"     && echo "git     : [$GIT]($GIT)  " >> "$PAGE"
+test -n "$TAR"     && echo "tar     : [$TAR]($TAR)  " >> "$PAGE"
 echo "" >> "$PAGE"
 
 echo "## build
@@ -38,5 +38,5 @@ echo '## manifest
 ```sh' >> "$PAGE"
 cat $1.sh >> "$PAGE"
 echo "\`\`\`
-This package manifest and it's associed patches can be found at https://github.com/tayoky/ports/blob/main/ports/$1
+This package manifest and it's associed patches can be found at [https://github.com/tayoky/ports/blob/main/ports/$1](https://github.com/tayoky/ports/blob/main/ports/$1)
 " >> "$PAGE"
