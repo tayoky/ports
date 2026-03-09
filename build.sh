@@ -19,6 +19,7 @@ export AR
 export NM
 export STRIP
 export PKGCONFIG
+export CFLAGS
 
 #SRC is the directory of the port
 export SRC="$PWD/ports/$1"
