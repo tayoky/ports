@@ -1,5 +1,5 @@
 GIT=https://github.com/tayoky/tvi
-COMMIT=98057ef484ebe08c6e3b5168a5776bce4ac76f2e
+COMMIT=cb2b4d9f564c011e390f5c0dd706d831e86cfa7e
 
 configure() {
 	# disable dynamic linking linking
