@@ -1,8 +1,9 @@
 GIT=https://github.com/tayoky/tutils
-COMMIT=a58515420b950ca10d9e3957b8c07216ca188b0c
+COMMIT=bdf736e2ef3f1d1f6e158c45b0c1dae2aec8f4b1
 
 configure() {
-	./configure --host="$HOST" --with-CC="$CC" --prefix="$PREFIX"
+	# disable dynamic linking linking
+	CFLAGS="$CFLAGS -static" ./configure --host="$HOST" --with-CC="$CC" --prefix="$PREFIX"
 }
 
 build() {
