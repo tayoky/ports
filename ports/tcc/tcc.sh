@@ -1,4 +1,5 @@
 GIT="https://github.com/TinyCC/tinycc"
+COMMIT="fada98b1ce9ee0c36771183177218828ccb9b9de"
 WEBSITE="https://bellard.org/tcc/"
 
 configure() {
@@ -6,10 +7,9 @@ configure() {
     --sysincludepaths=/usr/include:/usr/lib/tcc/include \
     --libpaths=/usr/lib:/usr/lib/tcc \
     --crtprefix=/usr/lib \
-    --elfinterp=/usr/lib/dl.so
+    --elfinterp=/usr/lib/ld-tlibc.so
     
-	echo '#define CONFIG_TCC_STATIC 1
-	#define CONFIG_TCC_SEMLOCK 0' >> config.h
+	echo '#define CONFIG_TCC_SEMLOCK 0' >> config.h
 }
 
 build() {
