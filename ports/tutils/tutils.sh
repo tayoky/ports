@@ -1,5 +1,5 @@
 GIT=https://github.com/tayoky/tutils
-COMMIT=bdf736e2ef3f1d1f6e158c45b0c1dae2aec8f4b1
+COMMIT=528eae8c46b0bbcd87679b2d6f822375fcfc5357
 
 configure() {
 	# disable dynamic linking linking
