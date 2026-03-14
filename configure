@@ -1,146 +1,28 @@
 #!/bin/sh
-#delete any old conf file
-rm -f $(dirname $0)/config.mk
 
-HOST=""
+. ./tconf.sh
 
-PREFIX="/usr/local"
+tconf_init "$@"
 
-for i in "$@"; do
-	case $i in
-		--with-sysroot=*)
-			SYSROOT="${i#*=}"
-			shift # past argument=value
-			;;
-		--with-CC=*|--cc=*)
-			CC="${i#*=}"
-			shift # past argument=value
-			;;
-		--with-LD=*|--ld=*)
-			LD="${i#*=}"
-			shift # past argument=value
-			;;
-		--ar=*)
-			AR="${i#*=}"
-			shift # past argument=value
-			;;
-		--as=*)
-			AS="${i#*=}"
-			shift # past argument=value
-			;;
-		--nm=*)
-			NM="${i#*=}"
-			shift # past argument=value
-			;;
-		--pkgconfig=*)
-			PKGCONFIG="${i#*=}"
-			shift # past argument=value
-			;;
-		--host=*)
-			HOST="${i#*=}"
-			shift # past argument=value
-			;;
-		--prefix=*)
-			PREFIX=$(realpath "${i#*=}")
-			shift # past argument=value
-			;;
-		-*|--*)
-			echo "Unknown option $i"
-			exit 1
-			;;
-		*)
-			;;
-	esac
-done
+tconf_search_cc "$HOST"
+tconf_require "C compiler" "$CC"
+tconf_search_cxx "$HOST"
+tconf_search_as "$HOST"
+tconf_require "assembler" "$AS"
+tconf_search_ar "$HOST"
+tconf_require "archiver" "$AR"
+tconf_search_ld "$HOST"
+tconf_require "linker" "$LD"
+tconf_search_nm "$HOST"
+tconf_search_strip "$HOST"
+tconf_search_pkgconfig "$HOST"
+tconf_require "pkg-config" "$PKGCONFIG"
 
-#check tools
-if [ "$HOST" != "" ] ; then
-	PREV="${HOST}-"
-fi
+tconf_find_os
 
-if [ "$CC" = "" ] ; then
-	if ${PREV}gcc --version > /dev/null 2>/dev/null ; then
-		CC="${PREV}gcc"
-	elif ${PREV}clang --version > /dev/null ; then
-		CC="${PREV}clang"
-	else
-		echo "error : no c compilator found"
-		exit 1
-	fi
-fi
+tconf_fini
 
-if [ "$CXX" = "" ]; then
-	if ${PREV}g++ --version > /dev/null 2>/dev/null ; then
-		CXX="${PREV}g++"
-	else
-		echo "error : no linker found"
-		exit 1
-	fi
-fi
-
-if [ "$LD" = "" ]; then
-	if ${PREV}ld --version > /dev/null 2>/dev/null ; then
-		LD="${PREV}ld"
-	else
-		echo "error : no linker found"
-		exit 1
-	fi
-fi
-
-if [ "$STRIP" = "" ]; then
-	if ${PREV}strip --version > /dev/null 2>/dev/null ; then
-		STRIP="${PREV}strip"
-	else
-		echo "error : no strip found"
-		exit 1
-	fi
-fi
-
-if [ "$AS" = "" ]; then
-	if ${PREV}as --version > /dev/null 2>/dev/null ; then
-		AS="${PREV}as"
-	else
-		echo "error : no assembler found"
-		exit 1
-	fi
-fi
-
-if [ "$AR" = "" ]; then
-	if ${PREV}ar --version > /dev/null 2>/dev/null ; then
-		AR="${PREV}ar"
-	else
-		echo "error : no archiver found"
-		exit 1
-	fi
-fi
-if [ "$PKGCONFIG" = "" ]; then
-	if pkg-config --version > /dev/null 2>/dev/null ; then
-		PKGCONFIG="pkg-config"
-	else
-		echo "error : pkg-config not found"
-		exit 1
-	fi
-fi
-
-#if host is NULL get it from compiler
-if [ "$HOST" = "" ] ; then
-	HOST=$($CC -dumpmachine)
-fi
-
-echo "#generated automatically by ./configure" > config.mk
-echo "HOST=$HOST" >> config.mk
-echo "PREFIX=$PREFIX" >> config.mk
-echo "CC=$CC" >> config.mk
-echo "LD=$LD" >> config.mk
-echo "AS=$AS" >> config.mk
-echo "AR=$AR" >> config.mk
-echo "NM=$NM" >> config.mk
-echo "CXX=$CXX" >> config.mk
-echo "STRIP=$STRIP" >> config.mk
-echo "PKGCONFIG=$PKGCONFIG" >> config.mk
-echo "SYSROOT=$SYSROOT" >> config.mk
-
-# create meson cross shit
+# create meson cross file
 # and yes we assume little endian
 echo "#generated automatically by ./configure
 [binaries]
@@ -160,7 +42,7 @@ endian     = 'little'
 sys_root = '$SYSROOT'
 " > meson-cross.txt
 
-# now cmake corss shit
+# now cmake cross file
 echo "#generated automatically by ./configure
 set(CMAKE_SYSTEM_NAME ${HOST#*-})
 
