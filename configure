@@ -5,18 +5,13 @@
 tconf_init "$@"
 
 tconf_search_cc "$HOST"
-tconf_require "C compiler" "$CC"
 tconf_search_cxx "$HOST"
 tconf_search_as "$HOST"
-tconf_require "assembler" "$AS"
 tconf_search_ar "$HOST"
-tconf_require "archiver" "$AR"
 tconf_search_ld "$HOST"
-tconf_require "linker" "$LD"
 tconf_search_nm "$HOST"
 tconf_search_strip "$HOST"
 tconf_search_pkgconfig "$HOST"
-tconf_require "pkg-config" "$PKGCONFIG"
 
 tconf_find_os
 
