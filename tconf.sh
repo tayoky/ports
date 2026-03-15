@@ -4,6 +4,22 @@ tconf_print () {
 	echo "$@" 1>&2
 }
 
+tconf_set_var () {
+	eval "$1='$2'"
+}
+
+tconf_get_var () {
+	eval "echo \"\$$1\""
+}
+
+tconf_to_macro_name () {
+	echo "$@" | tr "a-z./ " "A-Z___"
+}
+
+tconf_to_file_name () {
+	echo "$@" | tr " " "_"
+}
+
 tconf_help () {
 	echo "usage : $(basename "$0") [OPTIONS...]
 generate config.mk from environement
@@ -27,6 +43,8 @@ generate config.mk from environement
 --prefix=PREFIX set the prefix
 --sysroot=SYSROOT, --with-sysroot=SYSROOT set the sysroot
 --debug compile with debug options actived
+--enable-XXX compile with a specific feature enabled
+--disable-XXX compile with a specific feature disabled
 --help show this help and exit"
 }
 
@@ -40,13 +58,9 @@ tconf_init () {
 	fi
 
 	# defaults
-	if test -z "$PREFIX" ; then
-		PREFIX="/usr/local"
-	fi
-
-	if test -z "$CFLAGS" ; then
-		CFLAGS="-Wall -Wextra"
-	fi
+	test -z "$PREFIX" && PREFIX="/usr/local"
+	test -z "$CFLAGS" && CFLAGS="-Wall -Wextra"
+	test -z "$DEBUG" && DEBUG="no"
 
 	# parse options
 	for i in "$@" ; do
@@ -109,7 +123,13 @@ tconf_init () {
 			SYSROOT="${i#*=}"
 			;;
 		--debug)
-			OPT="$OPT -DDEBUG=1"
+			DEBUG=yes
+			;;
+		--enable-*)
+			tconf_set_var $(tconf_to_macro_name "${i##*-}") "yes"
+			;;
+		--disable-*)
+			tconf_set_var $(tconf_to_macro_name "${i#*-}") "no"
 			;;
 		--clear-cache)
 			rm -fr "$TCONF_DIR/"*
@@ -124,6 +144,12 @@ tconf_init () {
 			;;
 		esac
 	done
+
+	# make path absolute
+	test -n "$PREFIX" && PREFIX="$(realpath "$PREFIX")"
+	test -n "$SYSROOT" && SYSROOT="$(realpath "$SYSROOT")"
+	
+	return 0
 }
 
 tconf_echo_conf () {
@@ -135,6 +161,7 @@ tconf_echo_conf () {
 }
 
 tconf_fini () {
+	test "$DEBUG" = "yes" && OPT="$OPT -g -DDEBUG=1"
 	{
 		echo "# automaticly generated from $(basename "$0")"
 		tconf_echo_conf PREFIX "$PREFIX"
@@ -165,36 +192,20 @@ tconf_fini () {
 
 tconf_add_subdir () {
 	if test -z "$1" ; then
-		tconf_print "usage : tconf_add_subdir SUBDIR..."
+		tconf_print "usage : tconf_add_subdir SUBDIR [OPTIONS...]"
 		return 1
 	fi
-	for SUBDIR in "$@" ; do
-		export CC CXX AS AR LD NM
-		export READELF OBJCOPY STRIP
-		export CFLAGS CXXFLAGS ASFLAGS
-		export ARFLAGS LDFLAGS
-		export HOST BUILD TARGET
-		export PREFIX
-		tconf_print "entering subdir $SUBDIR"
-		(cd "$SUBDIR" && ./configure)
-		tconf_print "exiting subdir $SUBDIR"
-	done
-}
-
-tconf_to_macro_name () {
-	echo "$@" | tr "a-z./ " "A-Z___"
-}
-
-tconf_to_file_name () {
-	echo "$@" | tr " " "_"
-}
-
-tconf_set_var () {
-	eval "$1='$2'"
-}
-
-tconf_get_var () {
-	eval "echo \"\$$1\""
+	export CC CXX AS AR LD NM
+	export READELF OBJCOPY STRIP
+	export CFLAGS CXXFLAGS ASFLAGS
+	export ARFLAGS LDFLAGS OPT
+	export HOST BUILD TARGET
+	export PREFIX DEBUG
+	SUBDIR="$1"
+	shift
+	tconf_print "entering subdir $SUBDIR"
+	(cd "$SUBDIR" && ./configure "$@")
+	tconf_print "exiting subdir $SUBDIR"
 }
 
 tconf_require () {
