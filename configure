@@ -11,7 +11,7 @@ tconf_search_ar "$HOST"
 tconf_search_ld "$HOST"
 tconf_search_nm "$HOST"
 tconf_search_strip "$HOST"
-tconf_search_pkgconfig "$HOST"
+tconf_search_pkgconfig ""
 
 tconf_find_os
 
