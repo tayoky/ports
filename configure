@@ -15,6 +15,10 @@ tconf_search_pkgconfig ""
 
 tconf_find_os
 
+# HACK : put cflags between quotes to avoid problems
+CFLAGS="\"$CFLAGS\""
+CXXFLAGS="\"$CXXFLAGS\""
+
 tconf_fini
 
 # create meson cross file
