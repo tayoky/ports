@@ -15,9 +15,14 @@ tconf_search_pkgconfig ""
 
 tconf_find_os
 
-# HACK : put cflags between quotes to avoid problems
-CFLAGS="\"$CFLAGS\""
-CXXFLAGS="\"$CXXFLAGS\""
+# HACK : put cflags between quotes to avoid problems and =disable debug for ports
+if test "$DEBUG" = "yes" ; then
+    OPT="$OPT -g"
+    DEBUG="no"
+fi
+CFLAGS="\"$CFLAGS$OPT\""
+CXXFLAGS="\"$CXXFLAGS$OPT\""
+OPT=""
 
 tconf_fini
 
