@@ -1,0 +1,129 @@
+diff --git a/client/cl_scrn.c b/client/cl_scrn.c
+index 4591b65..4faf89b 100644
+--- a/client/cl_scrn.c
++++ b/client/cl_scrn.c
+@@ -624,11 +624,11 @@ int entitycmpfnc( const entity_t *a, const entity_t *b )
+ 	*/
+ 	if ( a->model == b->model )
+ 	{
+-		return ( ( int ) a->skin - ( int ) b->skin );
++		return ( (uintptr_t) a->skin - (uintptr_t) b->skin );
+ 	}
+ 	else
+ 	{
+-		return ( ( int ) a->model - ( int ) b->model );
++		return ( (uintptr_t) a->model - (uintptr_t) b->model );
+ 	}
+ }
+ 
+diff --git a/ctf/g_local.h b/ctf/g_local.h
+index 3ccb930..4529b82 100644
+--- a/ctf/g_local.h
++++ b/ctf/g_local.h
+@@ -514,10 +514,10 @@ extern	int	meansOfDeath;
+ 
+ extern	edict_t			*g_edicts;
+ 
+-#define	FOFS(x) (int)&(((edict_t *)0)->x)
+-#define	STOFS(x) (int)&(((spawn_temp_t *)0)->x)
+-#define	LLOFS(x) (int)&(((level_locals_t *)0)->x)
+-#define	CLOFS(x) (int)&(((gclient_t *)0)->x)
++#define	FOFS(x) (uintptr_t)&(((edict_t *)0)->x)
++#define	STOFS(x) (uintptr_t)&(((spawn_temp_t *)0)->x)
++#define	LLOFS(x) (uintptr_t)&(((level_locals_t *)0)->x)
++#define	CLOFS(x) (uintptr_t)&(((gclient_t *)0)->x)
+ 
+ #define random()	((rand () & 0x7fff) / ((float)0x7fff))
+ #define crandom()	(2.0 * (random() - 0.5))
+diff --git a/game/g_local.h b/game/g_local.h
+index 088ae9e..ccf474e 100644
+--- a/game/g_local.h
++++ b/game/g_local.h
+@@ -30,6 +30,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ // the "gameversion" client command will print this plus compile date
+ #define	GAMEVERSION	"baseq2"
+ 
++#include <stdint.h>
++
+ // protocol bytes that can be directly added to messages
+ #define	svc_muzzleflash		1
+ #define	svc_muzzleflash2	2
+@@ -505,10 +509,10 @@ extern	int	meansOfDeath;
+ 
+ extern	edict_t			*g_edicts;
+ 
+-#define	FOFS(x) (int)&(((edict_t *)0)->x)
+-#define	STOFS(x) (int)&(((spawn_temp_t *)0)->x)
+-#define	LLOFS(x) (int)&(((level_locals_t *)0)->x)
+-#define	CLOFS(x) (int)&(((gclient_t *)0)->x)
++#define	FOFS(x) (uintptr_t)&(((edict_t *)0)->x)
++#define	STOFS(x) (uintptr_t)&(((spawn_temp_t *)0)->x)
++#define	LLOFS(x) (uintptr_t)&(((level_locals_t *)0)->x)
++#define	CLOFS(x) (uintptr_t)&(((gclient_t *)0)->x)
+ 
+ #define random()	((rand () & 0x7fff) / ((float)0x7fff))
+ #define crandom()	(2.0 * (random() - 0.5))
+diff --git a/qcommon/qcommon.h b/qcommon/qcommon.h
+index 838f153..901ec99 100644
+--- a/qcommon/qcommon.h
++++ b/qcommon/qcommon.h
+@@ -21,6 +21,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ // qcommon.h -- definitions common between client and server, but not game.dll
+ 
+ #include <stdbool.h>
++#include <stdint.h>
+ 
+ #include "../game/q_shared.h"
+ 
+diff --git a/ref_soft/r_edge.c b/ref_soft/r_edge.c
+index d7fa94c..a3cc125 100644
+--- a/ref_soft/r_edge.c
++++ b/ref_soft/r_edge.c
+@@ -1074,7 +1074,7 @@ void D_DrawflatSurfaces (void)
+ 
+ 		// make a stable color for each surface by taking the low
+ 		// bits of the msurface pointer
+-		D_FlatFillSurface (s, (int)s->msurf & 0xFF);
++		D_FlatFillSurface (s, (uintptr_t)s->msurf & 0xFF);
+ 		D_DrawZSpans (s->spans);
+ 	}
+ }
+diff --git a/ref_soft/r_surf.c b/ref_soft/r_surf.c
+index 0f309d8..cde50e6 100644
+--- a/ref_soft/r_surf.c
++++ b/ref_soft/r_surf.c
+@@ -450,7 +450,7 @@ surfcache_t     *D_SCAlloc (int width, int size)
+ 	if ((size <= 0) || (size > 0x10000))
+ 		ri.Sys_Error (ERR_FATAL,"D_SCAlloc: bad cache size %d\n", size);
+ 	
+-	size = (int)&((surfcache_t *)0)->data[size];
++	size = (uintptr_t)&((surfcache_t *)0)->data[size];
+ 	size = (size + 3) & ~3;
+ 	if (size > sc_size)
+ 		ri.Sys_Error (ERR_FATAL,"D_SCAlloc: %i > cache size of %i",size, sc_size);
+diff --git a/server/server.h b/server/server.h
+index a8d30ca..4caf64b 100644
+--- a/server/server.h
++++ b/server/server.h
+@@ -25,6 +25,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ #include "../qcommon/qcommon.h"
+ #include "../game/game.h"
+ 
++#include <stdint.h>
++
+ //=============================================================================
+ 
+ #define	MAX_MASTERS	8				// max recipients for heartbeat packets
+diff --git a/server/sv_world.c b/server/sv_world.c
+index ded791e..f16f89c 100644
+--- a/server/sv_world.c
++++ b/server/sv_world.c
+@@ -33,7 +33,7 @@ FIXME: this use of "area" is different from the bsp file use
+ // (type *)STRUCT_FROM_LINK(link_t *link, type, member)
+ // ent = STRUCT_FROM_LINK(link,entity_t,order)
+ // FIXME: remove this mess!
+-#define	STRUCT_FROM_LINK(l,t,m) ((t *)((byte *)l - (int)&(((t *)0)->m)))
++#define	STRUCT_FROM_LINK(l,t,m) ((t *)((byte *)l - (uintptr_t)&(((t *)0)->m)))
+ 
+ #define	EDICT_FROM_AREA(l) STRUCT_FROM_LINK(l,edict_t,area)
+ 
