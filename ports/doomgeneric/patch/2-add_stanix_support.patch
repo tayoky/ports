@@ -24,10 +24,10 @@ index 0000000..036f4f4
 +
 diff --git a/doomgeneric/doomgeneric_stanix.c b/doomgeneric/doomgeneric_stanix.c
 new file mode 100644
-index 0000000..ede09c8
+index 0000000..ccb03a2
 --- /dev/null
 +++ b/doomgeneric/doomgeneric_stanix.c
-@@ -0,0 +1,153 @@
+@@ -0,0 +1,154 @@
 +#include <errno.h>
 +#include <fcntl.h>
 +#include <input.h>  
@@ -110,6 +110,7 @@ index 0000000..ede09c8
 +
 +int DG_GetKey(int *pressed, unsigned char *key) {
 +	twm_event_input_t *event = (twm_event_input_t*)twm_peek_event();
++	if (!event) return 0;
 +
 +	// ignore not key event
 +	if (event->base.type != TWM_EVENT_INPUT || event->type != TWM_INPUT_KEY) {
