@@ -17,7 +17,7 @@ index 0000000..036f4f4
 +all : ${OUT}
 +
 +${OUT} : ${OBJ}
-+	${CC} ${LDFLAGS} -ltwm -o ${OUT} ${OBJ}
++	${CC} ${LDFLAGS} -lm -ltwm -o ${OUT} ${OBJ}
 +
 +%.o : %.c
 +	${CC} ${CFLAGS} -o $@ -g -c $^
@@ -74,7 +74,7 @@ index 0000000..ccb03a2
 +
 +	
 +	puts("create and map window");
-+	window = twm_create_window("doom", DOOMGENERIC_RESX, DOOMGENERIC_RESY);
++	window = twm_create_window("doom", DOOMGENERIC_RESX, DOOMGENERIC_RESY, TWM_NULL);
 +	twm_set_window_attr(window, TWM_REMOVE_ATTR, TWM_ATTR_RESIZABLE);
 +
 +	// mmap the window
