@@ -21,6 +21,11 @@ export STRIP
 export PKGCONFIG
 export CFLAGS
 
+#interface with toolchain
+if test -d "../toolchain/bin" ; then
+	export PATH="$(realpath ../toolchain/bin):$PATH"
+fi
+
 #SRC is the directory of the port
 export SRC="$PWD/ports/$1"
 
