@@ -1,4 +1,4 @@
-VERSION="1.3.1"
+VERSION="1.3.2"
 TAR="https://www.zlib.net/zlib-$VERSION.tar.gz"
 WEBSITE="https://www.zlib.net/"
 
