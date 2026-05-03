@@ -25,6 +25,10 @@ port_init () {
 	export PREFIX
 	export SYSROOT
 	export DESTDIR
+	export PKG_CONFIG_DIR=''
+	export PKG_CONFIG_LIBDIR="$SYSROOT$PREFIX/lib/pkgconfig"
+	export PKG_CONFIG_PATH="$PKG_CONFIG_LIBDIR"
+	export PKG_CONFIG_SYSROOT_DIR="$SYSROOT"
 
 	# find tmp dir
 	: "${TMPDIR:=${TMP:=${TEMP:-/tmp}}}"
