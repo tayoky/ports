@@ -1,22 +1,11 @@
 #!/bin/sh
 
-#source the config and export
-. ./config.mk
-export CC
-export LD
+. ./port.sh
 
-#SRC is the directory of the port
-export SRC="$PWD/ports/$1"
+port_init "$1" || exit 1
 
-. $SRC/$1.sh
-
-if [ "$GIT" != "" ] ; then
-	cd git/$1
-elif [ "$TAR" != "" ] ; then
-	cd tar/$1
-else
-	echo "error : no git or tar specified"
-	exit
+if test -n "$2" ; then
+	export DESTDIR="$(realpath -m "$2")"
 fi
 
-install
+port_install

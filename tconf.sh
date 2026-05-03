@@ -13,7 +13,7 @@ tconf_get_var () {
 }
 
 tconf_to_macro_name () {
-	echo "$@" | tr "a-z./ " "A-Z___"
+	echo "$@" | tr "a-z./ -" "A-Z____" | tr -s _
 }
 
 tconf_to_file_name () {
@@ -32,17 +32,17 @@ generate config.mk from environement
 --strip=STRIP set the striper
 --nm=NM set the nm
 --pkgconfig=PKGCONFIG set the pkg-config
---cflags=CFLAGS set cutsom flags for C compilation
---cxxflags=CXXFLAGS set custom flags for C++ compilation
---arflags=ASFLAGS set the flags for assembling
---asflags=ARFLAGS set the flags for archiving
+--cflags=CFLAGS set cutsom flags for C compilation [$CFLAGS$OPT]
+--cxxflags=CXXFLAGS set custom flags for C++ compilation [$CXXFLAGS$OPT]
+--asflags=ASFLAGS set the flags for assembling
+--arflags=ARFLAGS set the flags for archiving
 --ldflags=LDFLAGS set the flags for linking
---host=HOST set the host os, can be used for cross compiling
---build=BUILD set the build os, can be set if tconf cannot determinate the build os
+--host=HOST set the host OS, can be used for cross compiling
+--build=BUILD set the build OS, can be set if tconf cannot determine the build OS
 --clear-cache clear the cache before doing anything
---prefix=PREFIX set the prefix
---sysroot=SYSROOT, --with-sysroot=SYSROOT set the sysroot
---debug compile with debug options actived
+--prefix=PREFIX set the prefix [$PREFIX]
+--sysroot=SYSROOT, --with-sysroot=SYSROOT set the sysroot [${SYSROOT:-"/"}]
+--debug compile with debug options activated [$DEBUG]
 --enable-XXX compile with a specific feature enabled
 --disable-XXX compile with a specific feature disabled
 --help show this help and exit"
@@ -241,7 +241,7 @@ tconf_check_code () {
 	fi
 
 	echo "$3" > "$FILE"
-	if env "CFLAGS=$CFLAGS $4" $1 "$FILE" -o "$FILE.out" >/dev/null 2>/dev/null ; then
+	if $1 $CFLAGS $4 "$FILE" -o "$FILE.out" >/dev/null 2>/dev/null ; then
 		tconf_print "yes"
 		return 0
 	else
@@ -257,7 +257,7 @@ tconf_check_code_define () {
 	fi
 
 	if tconf_check_code "$1" "$2" "$3" "$4" ; then
-		OPT="$OPT -DHAVE_$(tconf_to_macro_name "$2")=1"
+		OPT="$OPT -D$(tconf_to_macro_name "HAVE_$2")=1"
 	fi
 }
 
@@ -269,6 +269,19 @@ tconf_check_func () {
 	tconf_check_code_define "$1" "$3" "#include <$2>
 void *volatile ptr = (void*)$3;
 int main() {
+	return 0;
+}"
+}
+
+tconf_check_builtin () {
+	if [ $# != 3 ] ; then
+		tconf_print "usage : tconf_check_builtin CC BUILTIN PARAM"
+		return 1
+	fi
+	tconf_check_code_define "$1" "$2" "// include stddef to get NULL for some tests
+#include <stddef.h>
+int main() {
+	$2($3);
 	return 0;
 }"
 }
