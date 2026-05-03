@@ -5,7 +5,7 @@ WEBSITE=https://www.mpfr.org/
 
 configure() {
 	./configure --host="$HOST" --target="$HOST" \
-	--prefix="$PREFIX" --with-sysroot=/
+	--prefix="$PREFIX"
 }
 
 build(){
