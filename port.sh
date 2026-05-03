@@ -20,6 +20,11 @@ port_init () {
 	export NPROC=$(nproc)
 	export MESON_CROSS="$(realpath ./meson-cross.txt)"
 	export CMAKE_CROSS="$(realpath ./cmake-cross.cmake)"
+	test -z "$SYSROOT" && SYSROOT="/"
+	test -z "$DESTDIR" && DESTDIR="$SYSROOT"
+	export PREFIX
+	export SYSROOT
+	export DESTDIR
 
 	# find tmp dir
 	: "${TMPDIR:=${TMP:=${TEMP:-/tmp}}}"
@@ -186,13 +191,16 @@ port_download () {
 }
 
 port_configure () {
+	cd "$SRC" || return 1
 	(configure)
 }
 
 port_build () {
+	cd "$SRC" || return 1
 	(build)
 }
 
 port_install () {
+	cd "$SRC" || return 1
 	(install)
 }

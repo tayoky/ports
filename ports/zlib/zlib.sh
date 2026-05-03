@@ -4,7 +4,7 @@ WEBSITE="https://www.zlib.net/"
 
 configure() {
 	#thanks to bananymous for the --uname
-	./configure --prefix=/usr --uname=stanix
+	./configure --prefix="$PREFIX" --uname=stanix
 }
 
 build() {
@@ -12,5 +12,5 @@ build() {
 }
 
 install() {
-	make install DESTDIR=${PREFIX%%/usr}
+	make install DESTDIR="$DESTDIR"
 }
