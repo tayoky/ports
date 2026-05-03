@@ -9,7 +9,7 @@ build() {
 	true
 }
 
-#source the config and export
+# source the config and export
 . ./config.mk
 export CC
 export CXX
@@ -21,40 +21,53 @@ export STRIP
 export PKGCONFIG
 export CFLAGS
 
-#interface with toolchain
+# use the toolchain from the main stanix repo if available
 if test -d "../toolchain/bin" ; then
 	export PATH="$(realpath ../toolchain/bin):$PATH"
 fi
 
-#SRC is the directory of the port
-export SRC="$PWD/ports/$1"
+# PORT is the directory of the port
+export PORT="$PWD/ports/$1"
 
+# find tmp dir
+if test -z "$TMPDIR" ; then
+	: "${TMPDIR:=${TMP:=${TEMP:-/tmp}}}"
+fi
 
-#source the config file
-. $SRC/$1.sh
+VERSION="unknow"
+NAME="$1"
+# source the port file
+. "$PORT/$1.sh"
 
-#some configs stuff
+# some configs stuff
 export NPROC=$(nproc)
-export MESON_CROSS=$(realpath ./meson-cross.txt)
+export MESON_CROSS="$(realpath ./meson-cross.txt)"
+export CMAKE_CROSS="$(realpath ./cmake-cross.cmake)"
 
 FIRST=false
 
-#if tar download tar instead of cloning repo
+# if needed download tar instead of cloning repo
 if [ "$TAR" != "" ] ; then
+	TAR_NAME=$(basename "$TAR")
+	TAR_DIR=${TAR_NAME%%.tar*}
 	mkdir -p tar
 	cd tar
-	NAME=$(basename "$TAR")
-	if [ ! -s $NAME ] ; then
-		echo "download $TAR"
-		curl -L $TAR -o $NAME
+	if [ ! -s "$TAR_NAME" ] ; then
+		echo "downloading $TAR..."
+		curl -L "$TAR" -o "$TAR_NAME"
 	fi
 	if [ ! -d $1 ] ; then
-		tar xf $NAME
-		mv ${NAME%%.tar*} $1
+		echo "unpacking $TAR_NAME..."
+		# extract to tmp
+		mkdir -p "$TMPDIR/$TAR_DIR"
+		tar xf "$TAR_NAME" -C "$TMPDIR/$TAR_DIR"
+		# move the child dir to main one
+		mv -T "$TMPDIR/$TAR_DIR"/*/ "$1"
+		rm -fr "$TMPDIR/$TAR_DIR"
 		FIRST=true
 	fi
 else
-	#clone the repo
+	# clone the repo
 	mkdir -p git
 	cd git
 	if [ ! -d $1 ] ; then
@@ -71,17 +84,17 @@ fi
 cd $1 || exit 1
 
 if [ "$FIRST" = "true" ] ; then 
-	#now apply the patch if needed
-	if [ -d $SRC/patch ] ; then
+	# now apply the patch if needed
+	if [ -d $PORT/patch ] ; then
 		echo "apply patch"
-		for PATCH in $(ls $SRC/patch) ; do
-			patch -ruN -f -p1 -i $SRC/patch/$PATCH
+		for PATCH in "$PORT/patch"/*.patch ; do
+			patch -ruN -f -p1 -i "$PORT/patch/$PATCH"
 		done
 	fi
 fi
 
-#run configuration if any
+# run configuration if any
 (configure)
 
-#run build if any
+# run build if any
 (build)
