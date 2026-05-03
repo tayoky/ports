@@ -4,7 +4,7 @@ TAR="https://github.com/vim/vim/archive/refs/tags/v$VERSION.tar.gz"
 WEBSITE="https://www.vim.org"
 
 configure() {
-	./configure --host=$HOST --prefix=/usr \
+	./configure --host=$HOST --prefix="$PREFIX" \
 	--with-pkg-config=$PKG_CONFIG \
 	--with-pkg-config-libdir=/usr/lib/pkgconfig \
 	--with-tlib=ncurses
@@ -24,5 +24,5 @@ build(){
 }
 
 install(){
-	make install DESTDIR=${PREFIX%%/usr}
+	make install DESTDIR="$DESTDIR"
 }

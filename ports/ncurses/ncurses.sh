@@ -3,7 +3,7 @@ TAR="https://ftp.gnu.org/gnu/ncurses/ncurses-$VERSION.tar.gz"
 WEBSITE=https://invisible-island.net/ncurses
 
 configure() {
-	./configure --host=$HOST --prefix=/usr \
+	./configure --host="$HOST" --prefix="$PREFIX" \
 	--with-pkg-config=$PKG_CONFIG \
 	--with-pkg-config-libdir=/usr/lib/pkgconfig \
 	--enable-pc-files \
@@ -19,5 +19,5 @@ build(){
 }
 
 install(){
-	make install DESTDIR=${PREFIX%%/usr}
+	make install DESTDIR="$DESTDIR"
 }

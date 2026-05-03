@@ -6,5 +6,6 @@ build() {
 }
 
 install() {
-	cp build/quake2 "$PREFIX/bin"
+	mkdir -p "$DESTDIR/$PREFIX/bin"
+	cp build/quake2 "$DESTDIR/$PREFIX/bin"
 }

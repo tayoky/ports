@@ -10,5 +10,5 @@ build() {
 }
 
 install() {
-	make install
+	make install DESTDIR="$DESTDIR"
 }

@@ -5,5 +5,5 @@ build() {
 }
 
 install() {
-	mkdir -p $PREFIX/lib && cp build/libkritic.a $PREFIX/lib
+	mkdir -p "$DESTDIR/$PREFIX/lib" && cp build/libkritic.a "$DESTDIR/$PREFIX/lib"
 }

@@ -6,5 +6,6 @@ build(){
 }
 
 install(){
-    cp shard $PREFIX/bin
+	mkdir -p "$DESTDIR/$PREFIX/bin"
+    cp shard "$DESTDIR/$PREFIX/bin"
 }

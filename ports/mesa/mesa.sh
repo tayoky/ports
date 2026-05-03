@@ -7,7 +7,7 @@ configure() {
 	cd build
 
 	meson setup .. \
-      --prefix=/usr   \
+      --prefix="$PREFIX"   \
       --buildtype=release \
       --cross-file "$MESON_CROSS" \
       -D platforms=[] \
@@ -25,5 +25,5 @@ build() {
 }
 
 install() {
-	meson install --destdir="${PREFIX%%/usr}"
+	meson install --destdir="$DESTDIR"
 }

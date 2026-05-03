@@ -10,5 +10,6 @@ build() {
 }
 
 install() {
-	cp src/nyancat $PREFIX/bin
+	mkdir -p "$DESTDIR/$PREFIX/bin"
+	cp src/nyancat "$DESTDIR/$PREFIX/bin"
 }

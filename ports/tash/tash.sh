@@ -2,7 +2,7 @@ GIT=https://github.com/tayoky/tash
 TAG=v0.1.0
 
 configure() {
-	./configure --host="$HOST" --cc=$CC --prefix=$PREFIX
+	./configure --host="$HOST" --cc=$CC --prefix="$PREFIX"
 }
 
 build() {
@@ -10,5 +10,5 @@ build() {
 }
 
 install() {
-	make install
+	make install DESTDIR="$DESTDIR"
 }

@@ -6,5 +6,6 @@ build(){
 }
 
 install(){
-	cp bin/gcc/64/specseek_64 $PREFIX/bin/specseek
+	mkdir -p "$DESTDIR/$PREFIX/bin"
+	cp bin/gcc/64/specseek_64 "$DESTDIR/$PREFIX/bin/specseek"
 }

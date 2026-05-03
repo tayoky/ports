@@ -5,7 +5,7 @@ WEBSITE=https://www.gnu.org/software/binutils/
 configure() {
 	./configure --host=$HOST \
 	--target=$HOST \
-	--prefix=/usr \
+	--prefix="$PREFIX" \
 	--with-sysroot=/ \
 	--with-build-sysroot=$SYSROOT \
 	--disable-nls --disable-werror \
@@ -18,5 +18,5 @@ build(){
 }
 
 install(){
-	make install-strip DESTDIR=${PREFIX%%/usr}
+	make install-strip DESTDIR="$DESTDIR"
 }

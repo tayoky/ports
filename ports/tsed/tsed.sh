@@ -10,6 +10,6 @@ build() {
 }
 
 install() {
-	mkdir -p $PREFIX/bin
-	cp tsed $PREFIX/bin
+	mkdir -p "$DESTDIR/$PREFIX/bin"
+	cp tsed "$DESTDIR/$PREFIX/bin"
 }

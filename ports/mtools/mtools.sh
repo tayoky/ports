@@ -3,7 +3,7 @@ TAR=http://ftp.gnu.org/gnu/mtools/mtools-$VERSION.tar.gz
 WEBSITE=https://www.gnu.org/software/mtools/
 
 configure() {
-	./configure --host=$HOST --prefix=/usr CFLAGS=-Wno-error
+	./configure --host="$HOST" --prefix="$PREFIX" CFLAGS=-Wno-error
 }
 
 build(){
@@ -11,5 +11,5 @@ build(){
 }
 
 install(){
-	make install DESTDIR=${PREFIX%%/usr}
+	make install DESTDIR="$DESTDIR"
 }

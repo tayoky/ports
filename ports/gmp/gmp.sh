@@ -4,8 +4,8 @@ TAR="$MIRROR/gmp/gmp-$VERSION.tar.xz"
 WEBSITE=https://gmplib.org/
 
 configure() {
-	./configure --host=$"HOST" \
-	--prefix=/usr --disable-cxx
+	./configure --host="$HOST" \
+	--prefix="$PREFIX" --disable-cxx
 }
 
 build(){
@@ -13,5 +13,5 @@ build(){
 }
 
 install(){
-	make install-strip DESTDIR=${PREFIX%%/usr}
+	make install-strip DESTDIR="$DESTDIR"
 }
