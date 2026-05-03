@@ -133,7 +133,7 @@ port_clone_commit () {
 	COMMIT="$2"
 	OUT="$3"
 
-	git_clone "$GIT" "$OUT" || return 1
+	port_clone "$GIT" "$OUT" || return 1
 	git -C "$OUT" fetch --depth=1 origin "$COMMIT" && git -C "$OUT" checkout --detach "$COMMIT"
 }
 
@@ -147,7 +147,7 @@ port_clone_tag () {
 	TAG="$2"
 	OUT="$3"
 
-	git_clone "$GIT" "$OUT" || return 1
+	port_clone "$GIT" "$OUT" || return 1
 	git -C "$OUT" fetch --depth=1 origin refs/tags/"$TAG":refs/tags/"$TAG" && git -C "$OUT" checkout --detach "$TAG"
 }
 
