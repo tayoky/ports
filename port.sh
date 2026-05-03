@@ -207,4 +207,5 @@ port_build () {
 port_install () {
 	cd "$SRC" || return 1
 	(install)
+	find "$DESTDIR$PREFIX/lib" -name '*.la' -delete
 }
