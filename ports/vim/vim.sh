@@ -2,10 +2,11 @@ VERSION="9.1.1485"
 #thanks to bananymous for the github archive trick
 TAR="https://github.com/vim/vim/archive/refs/tags/v$VERSION.tar.gz"
 WEBSITE="https://www.vim.org"
+DEPENDENCIES="ncurses"
 
 configure() {
-	./configure --host=$HOST --prefix="$PREFIX" \
-	--with-pkg-config=$PKG_CONFIG \
+	./configure --host="$HOST" --prefix="$PREFIX" \
+	--with-pkg-config="$PKG_CONFIG" \
 	--with-pkg-config-libdir=/usr/lib/pkgconfig \
 	--with-tlib=ncurses
 	--disable-nls \

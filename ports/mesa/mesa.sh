@@ -1,6 +1,7 @@
 VERSION="25.0.7"
 TAR="https://mesa3d.org/archive/mesa-$VERSION.tar.xz"
 WEBSITE="https://mesa3d.org"
+DEPENDENCIES="zlib"
 
 configure() {
 	mkdir -p build

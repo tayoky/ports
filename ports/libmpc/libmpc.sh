@@ -1,6 +1,7 @@
 VERSION="1.4.1"
 TAR="$GNU_MIRROR/mpc/mpc-$VERSION.tar.xz"
 WEBSITE="https://www.multiprecision.org/"
+DEPENDENCIES="libgmp libmpfr"
 
 configure() {
 	./configure --host="$HOST" --target="$HOST" \
