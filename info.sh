@@ -1,23 +1,27 @@
 #!/bin/sh
 
-cd ports
-cd $1
-. ./$1.sh
+. ./port.sh
 
-if [ "$VERSION"  ] ; then
+port_init "$1" || exit 1
+
+if [ "$NAME" ] ; then
+	echo "name        : $NAME"
+fi
+
+if [ "$VERSION" ] ; then
 	echo "version     : $VERSION"
 fi
 
-if [ "$WEBSITE"  ] ; then
+if [ "$WEBSITE" ] ; then
 	echo "website     : $WEBSITE"
 fi
 
-if [ "$GIT"  ] ; then
+if [ "$GIT" ] ; then
 	[ "$COMMIT" ] || COMMIT="HEAD"
 	echo "git repo    : $GIT#$COMMIT"
 fi
 
-if [ "$TAR"  ] ; then
+if [ "$TAR" ] ; then
 	echo "tar         : $TAR"
 fi
 

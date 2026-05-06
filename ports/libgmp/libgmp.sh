@@ -1,6 +1,5 @@
 VERSION=6.3.0
-MIRROR=https://ftp.gnu.org/gnu/
-TAR="$MIRROR/gmp/gmp-$VERSION.tar.xz"
+TAR="$GNU_MIRROR/gmp/gmp-$VERSION.tar.xz"
 WEBSITE=https://gmplib.org/
 
 configure() {
@@ -8,10 +7,10 @@ configure() {
 	--prefix="$PREFIX" --disable-cxx
 }
 
-build(){
+build() {
 	make all -j$NPROC
 }
 
-install(){
+install() {
 	make install-strip DESTDIR="$DESTDIR"
 }

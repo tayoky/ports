@@ -30,6 +30,9 @@ port_init () {
 	export PKG_CONFIG_PATH="$PKG_CONFIG_LIBDIR"
 	export PKG_CONFIG_SYSROOT_DIR="$SYSROOT"
 
+	# setup GNU mirror
+	: "${GNU_MIRROR:="https://ftp.gnu.org/gnu"}"
+
 	# find tmp dir
 	: "${TMPDIR:=${TMP:=${TEMP:-/tmp}}}"
 
@@ -55,6 +58,10 @@ port_init () {
 	}
 
 	# source the port script
+	if ! test -f "$PORT/$NAME.sh" ; then
+		echo "no such port '$NAME'"
+		return 1
+	fi
 	. "$PORT/$NAME.sh"
 
 	# SRC is where the source code is

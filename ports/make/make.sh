@@ -1,5 +1,5 @@
 VERSION="4.4.1"
-TAR="https://ftp.gnu.org/gnu/make/make-$VERSION.tar.gz"
+TAR="$GNU_MIRROR/make/make-$VERSION.tar.gz"
 WEBSITE="https://www.gnu.org/software/make"
 
 configure() {

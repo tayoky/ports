@@ -1,5 +1,5 @@
 VERSION="6.5"
-TAR="https://ftp.gnu.org/gnu/ncurses/ncurses-$VERSION.tar.gz"
+TAR="$GNU_MIRROR/ncurses/ncurses-$VERSION.tar.gz"
 WEBSITE=https://invisible-island.net/ncurses
 
 configure() {
@@ -14,10 +14,10 @@ configure() {
 	--without-cxx-binding
 }
 
-build(){
+build() {
 	make all -j$NPROC
 }
 
-install(){
+install() {
 	make install DESTDIR="$DESTDIR"
 }
