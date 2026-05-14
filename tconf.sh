@@ -1,5 +1,7 @@
 # source this script in your configure
 
+TCONF_VERSION="v0.1.0"
+
 tconf_print () {
 	echo "$@" 1>&2
 }
@@ -13,7 +15,7 @@ tconf_get_var () {
 }
 
 tconf_to_macro_name () {
-	echo "$@" | tr "a-z./ -" "A-Z____" | tr -s _
+	echo "$@" | tr "a-z./ " "A-Z___" | tr -s _
 }
 
 tconf_to_file_name () {
@@ -34,14 +36,15 @@ generate config.mk from environement
 --pkgconfig=PKGCONFIG set the pkg-config
 --cflags=CFLAGS set cutsom flags for C compilation [$CFLAGS$OPT]
 --cxxflags=CXXFLAGS set custom flags for C++ compilation [$CXXFLAGS$OPT]
---asflags=ASFLAGS set the flags for assembling
---arflags=ARFLAGS set the flags for archiving
+--arflags=ASFLAGS set the flags for assembling
+--asflags=ARFLAGS set the flags for archiving
 --ldflags=LDFLAGS set the flags for linking
---host=HOST set the host OS, can be used for cross compiling
---build=BUILD set the build OS, can be set if tconf cannot determine the build OS
+--host=HOST set the host os, can be used for cross compiling
+--build=BUILD set the build os, can be set if tconf cannot determinate the build os
 --clear-cache clear the cache before doing anything
 --prefix=PREFIX set the prefix [$PREFIX]
 --sysroot=SYSROOT, --with-sysroot=SYSROOT set the sysroot [${SYSROOT:-"/"}]
+--builddir=BUILDDIR set the builddir (where to put objects) [$BUILDDIR]
 --debug compile with debug options activated [$DEBUG]
 --enable-XXX compile with a specific feature enabled
 --disable-XXX compile with a specific feature disabled
@@ -58,9 +61,10 @@ tconf_init () {
 	fi
 
 	# defaults
-	test -z "$PREFIX" && PREFIX="/usr/local"
-	test -z "$CFLAGS" && CFLAGS="-Wall -Wextra"
-	test -z "$DEBUG" && DEBUG="no"
+	: ${BUILDDIR:="$TOP/build"}
+	: ${PREFIX:="/usr/local"}
+	: ${CFLAGS:="-Wall -Wextra"}
+	: ${DEBUG:="no"}
 
 	# parse options
 	for i in "$@" ; do
@@ -122,14 +126,17 @@ tconf_init () {
 		--with-sysroot=*|--sysroot=*)
 			SYSROOT="${i#*=}"
 			;;
+		--builddir=*|BUILDDIR=*)
+			BUILDDIR="${i#*=}"
+			;;
 		--debug)
 			DEBUG=yes
 			;;
 		--enable-*)
-			tconf_set_var $(tconf_to_macro_name "${i##*-}") "yes"
+			tconf_set_var $(tconf_to_macro_name "${i#--*-}") "yes"
 			;;
 		--disable-*)
-			tconf_set_var $(tconf_to_macro_name "${i#*-}") "no"
+			tconf_set_var $(tconf_to_macro_name "${i#--*-}") "no"
 			;;
 		--clear-cache)
 			rm -fr "$TCONF_DIR/"*
@@ -139,15 +146,16 @@ tconf_init () {
 			exit 0
 			;;
 		--*)
-			tconf_print "unknow option '$i' (see --help)"
+			tconf_print "unknown option '$i' (see --help)"
 			exit 1
 			;;
 		esac
 	done
 
 	# make path absolute
-	test -n "$PREFIX" && PREFIX="$(realpath -m "$PREFIX")"
+	PREFIX="$(realpath -m "$PREFIX")"
 	test -n "$SYSROOT" && SYSROOT="$(realpath -m "$SYSROOT")"
+	BUILDDIR="$(realpath -m "$BUILDDIR")"
 	
 	return 0
 }
@@ -159,6 +167,13 @@ tconf_echo_conf () {
 	fi
 	test -n "$2" && echo "$1=$2"
 }
+tconf_echo_conf_util () {
+	if [ $# != 2 ] ; then
+		tconf_print "usage : tconf_echo_conf_util NAME VAR"
+		return 1
+	fi
+	tconf_echo_conf "$1" "$(which "$2")"
+}
 
 tconf_fini () {
 	test "$DEBUG" = "yes" && OPT="$OPT -g -DDEBUG=1"
@@ -166,16 +181,17 @@ tconf_fini () {
 		echo "# automaticly generated from $(basename "$0")"
 		tconf_echo_conf PREFIX "$PREFIX"
 		tconf_echo_conf SYSROOT "$SYSROOT"
-		tconf_echo_conf CC "$CC"
-		tconf_echo_conf CXX "$CXX"
-		tconf_echo_conf AS "$AS"
-		tconf_echo_conf AR "$AR"
-		tconf_echo_conf LD "$LD"
-		tconf_echo_conf READELF "$READELF"
-		tconf_echo_conf OBJCOPY "$OBJCOPY"
-		tconf_echo_conf STRIP "$STRIP"
-		tconf_echo_conf NM "$NM"
-		tconf_echo_conf PKGCONFIG "$PKGCONFIG"
+		tconf_echo_conf BUILDDIR "$BUILDDIR"
+		tconf_echo_conf_util CC "$CC"
+		tconf_echo_conf_util CXX "$CXX"
+		tconf_echo_conf_util AS "$AS"
+		tconf_echo_conf_util AR "$AR"
+		tconf_echo_conf_util LD "$LD"
+		tconf_echo_conf_util READELF "$READELF"
+		tconf_echo_conf_util OBJCOPY "$OBJCOPY"
+		tconf_echo_conf_util STRIP "$STRIP"
+		tconf_echo_conf_util NM "$NM"
+		tconf_echo_conf_util PKGCONFIG "$PKGCONFIG"
 
 		# avoid triggering CFLAGS or CXXFLAGS just because of options
 		# use them only if the corresponding compiler is used
@@ -205,7 +221,7 @@ tconf_add_subdir () {
 	SUBDIR="$1"
 	shift
 	tconf_print "entering subdir $SUBDIR"
-	(cd "$SUBDIR" && ./configure "$@")
+	(export BUILDDIR="$BUILDDIR/$SUBDIR" && cd "$SUBDIR" && ./configure "$@")
 	CODE=$?
 	tconf_print "exiting subdir $SUBDIR"
 	test "$CODE" != 0 && exit $CODE
@@ -346,6 +362,7 @@ tconf_search_util () {
 	# test if aready set
 	if test -n "$UTIL_VAR" && test -n "$(tconf_get_var $UTIL_VAR)" ; then
 		tconf_print "$(tconf_get_var $UTIL_VAR)"
+		tconf_set_var $UTIL_VAR "$(tconf_get_var $UTIL_VAR)"
 		return 0
 	fi
 	
@@ -356,8 +373,8 @@ tconf_search_util () {
 	shift 3
 	for util in "$@" ; do
 		if ${UTIL_PREFIX}$util --version 2>/dev/null >/dev/null ; then
-			test -n "$UTIL_VAR" && tconf_set_var $UTIL_VAR "${UTIL_PREFIX}$util"
 			tconf_print "${UTIL_PREFIX}$util"
+			test -n "$UTIL_VAR" && tconf_set_var $UTIL_VAR "${UTIL_PREFIX}$util"
 			return 0
 		fi
 	done
