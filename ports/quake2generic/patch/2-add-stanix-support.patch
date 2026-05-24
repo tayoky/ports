@@ -736,7 +736,7 @@ index 0000000..a3752c2
 +
 +static char * s_ScreenMemory = NULL;
 +
-+static int keyboard_fd = -1;
++static libinput_keyboard_t *keyboard = NULL;
 +
 +static unsigned int s_PositionX = 0;
 +static unsigned int s_PositionY = 0;
@@ -817,8 +817,8 @@ index 0000000..a3752c2
 +	s_ScreenHeight = gfx->height;
 +	printf("got screen of size %ux%u\n", s_ScreenWidth, s_ScreenHeight);
 +
-+	keyboard_fd = libinput_open("/dev/kb0", O_NONBLOCK);
-+	if (keyboard_fd < 0) {
++	keyboard = libinput_open_keyboard("/dev/kb0", O_NONBLOCK);
++	if (!keyboard) {
 +		perror("/dev/kb0");
 +		return false;
 +	}
@@ -883,24 +883,24 @@ index 0000000..a3752c2
 +
 +static unsigned char ConvertToQuakeKey(struct input_event *event)
 +{
-+	switch (event->ie_key.scancode) {
-+	case 0x01:
++	switch (event->ie_key.key) {
++	case INPUT_KEY_ESC:
 +		return K_ESCAPE;
-+	case 0x1C:
++	case INPUT_KEY_ENTER:
 +		return K_ENTER;
-+	case 0x2A:
-+	case 0x36:
++	case INPUT_KEY_LSHIFT:
++	case INPUT_KEY_RSHIFT:
 +		return K_SHIFT;
-+	case 0x80 + 0x48:
++	case INPUT_KEY_ARROW_UP:
 +		return K_UPARROW;
-+	case 0x80 + 0x4B:
++	case INPUT_KEY_ARROW_LEFT:
 +		return K_LEFTARROW;
-+	case 0x80 + 0x50:
++	case INPUT_KEY_ARROW_DOWN:
 +		return K_DOWNARROW;
-+	case 0x80 + 0x4D:
++	case INPUT_KEY_ARROW_RIGHT:
 +		return K_RIGHTARROW;
 +	default:
-+		return event->ie_key.c;
++		return event->ie_key.key;
 +	}     
 +}
 +
@@ -908,7 +908,7 @@ index 0000000..a3752c2
 +{
 +	// handle keyboard events
 +	struct input_event event;
-+	while (libinput_get_event(keyboard_fd, &event) > 0) {
++	while (libinput_get_keyboard_event(keyboard, &event) >= 0) {
 +		// ignore hold
 +		if (event.ie_key.flags & IE_KEY_HOLD) continue;
 +		Quake2_SendKey(ConvertToQuakeKey(&event), event.ie_key.flags & IE_KEY_PRESS);
