@@ -699,7 +699,7 @@ new file mode 100644
 index 0000000..a3752c2
 --- /dev/null
 +++ b/port_soft_stanix.c
-@@ -0,0 +1,264 @@
+@@ -0,0 +1,296 @@
 +
 +#include <stdio.h>
 +
@@ -881,16 +881,17 @@ index 0000000..a3752c2
 +}
 +
 +
++#define KEY(key) case INPUT_KEY_ ## key:\
++	return K_ ## key;
 +static unsigned char ConvertToQuakeKey(struct input_event *event)
 +{
 +	switch (event->ie_key.key) {
++	KEY(TAB)
++	KEY(ENTER)
 +	case INPUT_KEY_ESC:
 +		return K_ESCAPE;
-+	case INPUT_KEY_ENTER:
-+		return K_ENTER;
-+	case INPUT_KEY_LSHIFT:
-+	case INPUT_KEY_RSHIFT:
-+		return K_SHIFT;
++	KEY(SPACE)
++	KEY(BACKSPACE)
 +	case INPUT_KEY_ARROW_UP:
 +		return K_UPARROW;
 +	case INPUT_KEY_ARROW_LEFT:
@@ -899,6 +900,37 @@ index 0000000..a3752c2
 +		return K_DOWNARROW;
 +	case INPUT_KEY_ARROW_RIGHT:
 +		return K_RIGHTARROW;
++	case INPUT_KEY_LALT:
++	case INPUT_KEY_RALT:
++		return K_ALT;
++	case INPUT_KEY_LCRTL:
++	case INPUT_KEY_RCRTL:
++		return K_CTRL;
++	case INPUT_KEY_LSHIFT:
++	case INPUT_KEY_RSHIFT:
++		return K_SHIFT;
++	KEY(F1)
++	KEY(F2)
++	KEY(F3)
++	KEY(F4)
++	KEY(F5)
++	KEY(F6)
++	KEY(F7)
++	KEY(F8)
++	KEY(F9)
++	KEY(F10)
++	KEY(F11)
++	KEY(F12)
++	KEY(HOME)
++	KEY(END)
++	case INPUT_KEY_INSERT:
++		return K_INS;
++	case INPUT_KEY_DELETE:
++		return K_DEL;
++	case INPUT_KEY_PAGE_DOWN:
++		return K_PGDN;
++	case INPUT_KEY_PAGE_UP:
++		return K_PGUP;
 +	default:
 +		return event->ie_key.key;
 +	}     
