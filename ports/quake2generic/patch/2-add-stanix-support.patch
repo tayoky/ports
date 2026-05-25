@@ -699,7 +699,7 @@ new file mode 100644
 index 0000000..a3752c2
 --- /dev/null
 +++ b/port_soft_stanix.c
-@@ -0,0 +1,296 @@
+@@ -0,0 +1,298 @@
 +
 +#include <stdio.h>
 +
@@ -862,13 +862,15 @@ index 0000000..a3752c2
 +*/
 +void SWimp_EndFrame (void)
 +{
++	uint8_t *colorPtr = s_ScreenMemory;
 +	for (int y = 0; y < _height; ++y)
 +	{
++ 		uintptr_t ptr = gfx_pixel_addr(gfx, 0, y);
 +		for (int x = 0; x < _width; ++x)
 +		{
-+			uint8_t colorIndex = s_ScreenMemory[y * _width + x];
-+
-+			gfx_draw_pixel(gfx, colors[colorIndex], x, y);
++			uint8_t colorIndex = *(colorPtr++);
++			*(color_t *)ptr = colors[colorIndex];
++			ptr += gfx->bpp / 8;
 +		}
 +	}
 +	gfx_push_buffer(gfx);
