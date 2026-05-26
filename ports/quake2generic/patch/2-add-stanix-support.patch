@@ -838,9 +838,9 @@ index 0000000..a3752c2
 +void SWimp_SetPalette( const unsigned char *palette )
 +{
 +	for (int i=0; i<256; ++i) {
-+		uint8_t b = *palette++;
-+		uint8_t g = *palette++;
 +		uint8_t r = *palette++;
++		uint8_t g = *palette++;
++		uint8_t b = *palette++;
 +		uint8_t a = 255;
 +		palette++;
 +		colors[i] = gfx_color(gfx, r, g, b);
