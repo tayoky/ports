@@ -7,7 +7,7 @@ configure() {
 	mkdir -p build
 	cd build
 
-	meson setup .. \
+	CFLAGS="-Wno-error -Wno-implicit-function-declaration" meson setup .. \
       --prefix="$PREFIX"   \
       --buildtype=release \
       --cross-file "$MESON_CROSS" \
