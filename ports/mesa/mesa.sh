@@ -26,5 +26,6 @@ build() {
 }
 
 install() {
+      cd build
 	meson install --destdir="$DESTDIR"
 }
