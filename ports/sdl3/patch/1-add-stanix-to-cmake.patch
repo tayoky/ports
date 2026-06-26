@@ -1,0 +1,47 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index faf6d90..307924f 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -2915,6 +2915,42 @@ elseif(RISCOS)
+   if(SDL_AUDIO)
+     CheckOSS()
+   endif()
++  
++elseif(STANIX)
++  sdl_glob_sources("${SDL3_SOURCE_DIR}/src/misc/stanix/*.c")
++  set(HAVE_SDL_MISC TRUE)
++
++  if(SDL_VIDEO)
++    set(SDL_VIDEO_DRIVER_STANIX 1)
++    sdl_glob_sources(
++      "${SDL3_SOURCE_DIR}/src/video/stanix/*.c"
++      "${SDL3_SOURCE_DIR}/src/video/stanix/*.h"
++    )
++    set(HAVE_SDL_VIDEO TRUE)
++  endif()
++
++  set(SDL_FSOPS_POSIX 1)
++  sdl_sources("${SDL3_SOURCE_DIR}/src/filesystem/posix/SDL_sysfsops.c")
++  set(HAVE_SDL_FSOPS TRUE)
++
++  set(SDL_TIME_UNIX 1)
++  sdl_glob_sources("${SDL3_SOURCE_DIR}/src/time/unix/*.c")
++  set(HAVE_SDL_TIME TRUE)
++
++  set(SDL_TIMER_UNIX 1)
++  sdl_glob_sources("${SDL3_SOURCE_DIR}/src/timer/unix/*.c")
++  set(HAVE_SDL_TIMERS TRUE)
++
++  if(SDL_CLOCK_GETTIME)
++    set(HAVE_CLOCK_GETTIME 1)
++  endif()
++
++  CheckPTHREAD()
++
++  if(SDL_AUDIO)
++    CheckOSS()
++  endif()
++
+ 
+ elseif(VITA)
+   # SDL_spinlock.c Needs to be compiled in ARM mode.
