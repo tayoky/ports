@@ -1,0 +1,26 @@
+GIT=https://github.com/libsdl-org/SDL
+TAG=release-3.4.10
+WEBSITE=https://libsdl.org/
+
+configure () {
+	cmake -B build -S . \
+	-DSDL_GPU=OFF \
+	-DSDL_CAMERA=OFF \
+	-DSDL_JOYSTICK=OFF \
+	-DSDL_HAPTIC=OFF \
+	-DSDL_HIDAPI=OFF \
+	-DSDL_POWER=OFF \
+	-DSDL_SENSOR=OFF \
+	-DSDL_DIALOG=OFF \
+	-DSDL_ALSA=OFF -DSDL_JACK=OFF -DSDL_SNDIO=OFF -DSDL_PULSEAUDIO=OFF -DSDL_PIPEWIRE=OFF \
+	-DSDL_X11=OFF -DSDL_KMSDRM=OFF -DSDL_DBUS=OFF \
+	-DSDL_UNIX_CONSOLE_BUILD=ON
+}
+
+build() {
+	make -C build
+}
+
+install() {
+	:
+}
