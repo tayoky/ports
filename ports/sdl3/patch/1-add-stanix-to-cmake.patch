@@ -1,7 +1,16 @@
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index faf6d90..307924f 100644
+index faf6d90..0d8999b 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
+@@ -1771,7 +1771,7 @@ elseif(EMSCRIPTEN)
+   CheckPTHREAD()
+   CheckLibUnwind()
+ 
+-elseif(UNIX AND NOT APPLE AND NOT RISCOS AND NOT HAIKU)
++elseif(UNIX AND NOT APPLE AND NOT RISCOS AND NOT HAIKU AND NOT STANIX)
+ 
+   set(SDL_DISABLE_DLOPEN_NOTES TRUE)
+   if(SDL_DLOPEN_NOTES)
 @@ -2915,6 +2915,42 @@ elseif(RISCOS)
    if(SDL_AUDIO)
      CheckOSS()
