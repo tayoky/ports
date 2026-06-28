@@ -1,0 +1,286 @@
+diff --git a/src/video/SDL_sysvideo.h b/src/video/SDL_sysvideo.h
+index 1fdc5bf..89594e9 100644
+--- a/src/video/SDL_sysvideo.h
++++ b/src/video/SDL_sysvideo.h
+@@ -533,6 +533,7 @@ extern VideoBootStrap PS2_bootstrap;
+ extern VideoBootStrap PSP_bootstrap;
+ extern VideoBootStrap VITA_bootstrap;
+ extern VideoBootStrap RISCOS_bootstrap;
++extern VideoBootStrap STANIX_bootstrap;
+ extern VideoBootStrap N3DS_bootstrap;
+ extern VideoBootStrap NGAGE_bootstrap;
+ extern VideoBootStrap RPI_bootstrap;
+diff --git a/src/video/SDL_video.c b/src/video/SDL_video.c
+index 48ed85a..6d65f0e 100644
+--- a/src/video/SDL_video.c
++++ b/src/video/SDL_video.c
+@@ -137,6 +137,9 @@ static VideoBootStrap *bootstrap[] = {
+ #ifdef SDL_VIDEO_DRIVER_RISCOS
+     &RISCOS_bootstrap,
+ #endif
++#ifdef SDL_VIDEO_DRIVER_STANIX
++    &STANIX_bootstrap,
++#endif
+ #ifdef SDL_VIDEO_DRIVER_RPI
+     &RPI_bootstrap,
+ #endif
+diff --git a/src/video/stanix/SDL_stanixvideo.c b/src/video/stanix/SDL_stanixvideo.c
+new file mode 100644
+index 0000000..c472389
+--- /dev/null
++++ b/src/video/stanix/SDL_stanixvideo.c
+@@ -0,0 +1,100 @@
++/*
++  Simple DirectMedia Layer
++  Copyright (C) 1997-2026 Sam Lantinga <slouken@libsdl.org>
++
++  This software is provided 'as-is', without any express or implied
++  warranty.  In no event will the authors be held liable for any damages
++  arising from the use of this software.
++
++  Permission is granted to anyone to use this software for any purpose,
++  including commercial applications, and to alter it and redistribute it
++  freely, subject to the following restrictions:
++
++  1. The origin of this software must not be misrepresented; you must not
++     claim that you wrote the original software. If you use this software
++     in a product, an acknowledgment in the product documentation would be
++     appreciated but is not required.
++  2. Altered source versions must be plainly marked as such, and must not be
++     misrepresented as being the original software.
++  3. This notice may not be removed or altered from any source distribution.
++*/
++#include "SDL_internal.h"
++
++#ifdef SDL_VIDEO_DRIVER_STANIX
++
++#include <unistd.h> // For getpid() and readlink()
++
++#include "../../core/linux/SDL_system_theme.h"
++#include "../../core/linux/SDL_progressbar.h"
++#include "../../events/SDL_keyboard_c.h"
++#include "../../events/SDL_mouse_c.h"
++#include "../SDL_pixels_c.h"
++#include "../SDL_sysvideo.h"
++
++#include "SDL_stanixvideo.h"
++#include "SDL_stanixwindow.h"
++#include "twm.h"
++
++// Initialization/Query functions
++static bool STANIX_VideoInit(SDL_VideoDevice *_this);
++static void STANIX_VideoQuit(SDL_VideoDevice *_this);
++
++static void STANIX_DeleteDevice(SDL_VideoDevice *device)
++{
++    SDL_VideoData *data = device->internal;
++    SDL_free(data);
++    SDL_free(device);
++}
++
++static SDL_VideoDevice *STANIX_CreateDevice(void)
++{
++    SDL_VideoDevice *device;
++    SDL_VideoData *data;
++
++    // Initialize all variables that we clean on shutdown
++    device = (SDL_VideoDevice *)SDL_calloc(1, sizeof(SDL_VideoDevice));
++    if (!device) {
++        return NULL;
++    }
++    data = (struct SDL_VideoData *)SDL_calloc(1, sizeof(SDL_VideoData));
++    if (!data) {
++        SDL_free(device);
++        return NULL;
++    }
++    device->internal  = data;
++    device->VideoInit = STANIX_VideoInit;
++    device->VideoQuit = STANIX_VideoQuit;
++    device->free      = STANIX_DeleteDevice;
++
++    device->CreateSDLWindow = SDL_CreateWindow;
++    device->DestroyWindow   = SDL_DestroyWindow;
++
++    return device;
++}
++
++VideoBootStrap STANIX_bootstrap = {
++    "stanix", "SDL Stanix twm video driver",
++    STANIX_CreateDevice,
++    NULL, // no message box
++    false
++};
++
++
++static bool STANIX_VideoInit(SDL_VideoDevice *_this)
++{
++    (void)_this;
++    if (twm_init(NULL) < 0) {
++        SDL_SetError("Failed to connect to the twm server");
++        SDL_LogDebug(SDL_LOG_CATEGORY_VIDEO, "Failed to connect to the twm server");
++        return false;
++    }
++    return true;
++}
++
++void STANIX_VideoQuit(SDL_VideoDevice *_this)
++{
++    (void)_this;
++    twm_fini();
++}
++
++#endif // SDL_VIDEO_DRIVER_STANIX
+diff --git a/src/video/stanix/SDL_stanixvideo.h b/src/video/stanix/SDL_stanixvideo.h
+new file mode 100644
+index 0000000..b033126
+--- /dev/null
++++ b/src/video/stanix/SDL_stanixvideo.h
+@@ -0,0 +1,40 @@
++/*
++  Simple DirectMedia Layer
++  Copyright (C) 1997-2026 Sam  <slouken@libsdl.org>
++
++  This software is provided 'as-is', without any express or implied
++  warranty.  In no event will the authors be held liable for any damages
++  arising from the use of this software.
++
++  Permission is granted to anyone to use this software for any purpose,
++  including commercial applications, and to alter it and redistribute it
++  freely, subject to the following restrictions:
++
++  1. The origin of this software must not be misrepresented; you must not
++     claim that you wrote the original software. If you use this software
++     in a product, an acknowledgment in the product documentation would be
++     appreciated but is not required.
++  2. Altered source versions must be plainly marked as such, and must not be
++     misrepresented as being the original software.
++  3. This notice may not be removed or altered from any source distribution.
++*/
++#include "SDL_internal.h"
++
++#ifndef SDL_stanixvideo_h_
++#define SDL_stanixvideo_h_
++
++#include "../SDL_sysvideo.h"
++#include "../../events/SDL_keymap_c.h"
++
++#include "../../core/linux/SDL_dbus.h"
++#include "../../core/linux/SDL_ime.h"
++#include <twm.h>
++
++// Private display data
++
++struct SDL_VideoData
++{
++    int stub;
++};
++
++#endif // SDL_x11video_h_
+diff --git a/src/video/stanix/SDL_stanixwindow.c b/src/video/stanix/SDL_stanixwindow.c
+new file mode 100644
+index 0000000..b17ec92
+--- /dev/null
++++ b/src/video/stanix/SDL_stanixwindow.c
+@@ -0,0 +1,59 @@
++/*
++  Simple DirectMedia Layer
++  Copyright (C) 1997-2026 Sam Lantinga <slouken@libsdl.org>
++
++  This software is provided 'as-is', without any express or implied
++  warranty.  In no event will the authors be held liable for any damages
++  arising from the use of this software.
++
++  Permission is granted to anyone to use this software for any purpose,
++  including commercial applications, and to alter it and redistribute it
++  freely, subject to the following restrictions:
++
++  1. The origin of this software must not be misrepresented; you must not
++     claim that you wrote the original software. If you use this software
++     in a product, an acknowledgment in the product documentation would be
++     appreciated but is not required.
++  2. Altered source versions must be plainly marked as such, and must not be
++     misrepresented as being the original software.
++  3. This notice may not be removed or altered from any source distribution.
++*/
++#include "SDL_internal.h"
++
++#ifdef SDL_VIDEO_DRIVER_STANIX
++
++#include "../SDL_sysvideo.h"
++#include "../SDL_pixels_c.h"
++#include "../../events/SDL_keyboard_c.h"
++#include "../../events/SDL_mouse_c.h"
++#include "../../events/SDL_events_c.h"
++#include "../../core/unix/SDL_appid.h"
++
++#include "SDL_stanixvideo.h"
++#include "SDL_stanixwindow.h"
++#include <twm.h>
++
++extern bool STANIX_CreateWindow(SDL_VideoDevice *_this, SDL_Window *window, SDL_PropertiesID create_props) {
++    SDL_WindowData *data = (struct SDL_WindowData *)SDL_calloc(1, sizeof(SDL_WindowData));
++    data->window = twm_create_window(window->title, window->w, window->h, TWM_NULL);
++    if (data->window == TWM_NULL) {
++        SDL_free(data);
++        return false;
++    }
++    window->internal = data;
++
++    // TODO : do various flags here
++    if (window->flags & SDL_WINDOW_BORDERLESS) {
++    }
++    return true;
++}
++
++extern void STANIX_DestroyWindow(SDL_VideoDevice *_this, SDL_Window *window) {
++    SDL_WindowData *data = (struct SDL_WindowData *)window->internal;
++    twm_destroy_window(data->window);
++    SDL_free(data);
++    window->internal = NULL;
++}
++
++
++#endif // SDL_VIDEO_DRIVER_STANIX
+diff --git a/src/video/stanix/SDL_stanixwindow.h b/src/video/stanix/SDL_stanixwindow.h
+new file mode 100644
+index 0000000..012d728
+--- /dev/null
++++ b/src/video/stanix/SDL_stanixwindow.h
+@@ -0,0 +1,37 @@
++/*
++  Simple DirectMedia Layer
++  Copyright (C) 1997-2026 Sam Lantinga <slouken@libsdl.org>
++
++  This software is provided 'as-is', without any express or implied
++  warranty.  In no event will the authors be held liable for any damages
++  arising from the use of this software.
++
++  Permission is granted to anyone to use this software for any purpose,
++  including commercial applications, and to alter it and redistribute it
++  freely, subject to the following restrictions:
++
++  1. The origin of this software must not be misrepresented; you must not
++     claim that you wrote the original software. If you use this software
++     in a product, an acknowledgment in the product documentation would be
++     appreciated but is not required.
++  2. Altered source versions must be plainly marked as such, and must not be
++     misrepresented as being the original software.
++  3. This notice may not be removed or altered from any source distribution.
++*/
++#include "SDL_internal.h"
++
++#ifndef SDL_stanixwindow_h_
++#define SDL_stanixwindow_h_
++
++#include <twm.h>
++
++struct SDL_WindowData
++{
++    twm_window_t window;
++};
++
++extern bool STANIX_CreateWindow(SDL_VideoDevice *_this, SDL_Window *window, SDL_PropertiesID create_props);
++extern void STANIX_DestroyWindow(SDL_VideoDevice *_this, SDL_Window *window);
++
++
++#endif // SDL_x11window_h_

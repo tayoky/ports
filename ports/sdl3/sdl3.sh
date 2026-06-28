@@ -3,7 +3,7 @@ TAG=release-3.4.10
 WEBSITE=https://libsdl.org/
 
 configure () {
-	cmake -B build -S . \
+	cmake -B build -S . --toolchain="$CMAKE_CROSS" -DCMAKE_INSTALL_PREFIX="$PREFIX" \
 	-DSDL_GPU=OFF \
 	-DSDL_CAMERA=OFF \
 	-DSDL_JOYSTICK=OFF \
@@ -24,5 +24,5 @@ build() {
 }
 
 install() {
-	:
+	make -C build install DESTDIR="$DESTDIR"
 }

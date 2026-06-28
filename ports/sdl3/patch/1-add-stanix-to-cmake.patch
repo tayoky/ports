@@ -1,5 +1,5 @@
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index faf6d90..844c3d7 100644
+index faf6d90..d599e06 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
 @@ -1771,7 +1771,7 @@ elseif(EMSCRIPTEN)
@@ -11,7 +11,7 @@ index faf6d90..844c3d7 100644
  
    set(SDL_DISABLE_DLOPEN_NOTES TRUE)
    if(SDL_DLOPEN_NOTES)
-@@ -2915,6 +2915,47 @@ elseif(RISCOS)
+@@ -2915,6 +2915,50 @@ elseif(RISCOS)
    if(SDL_AUDIO)
      CheckOSS()
    endif()
@@ -27,6 +27,9 @@ index faf6d90..844c3d7 100644
 +      "${SDL3_SOURCE_DIR}/src/video/stanix/*.h"
 +    )
 +    set(HAVE_SDL_VIDEO TRUE)
++
++    # we need to link with libtwm
++   sdl_link_dependency(stanix_video LIBS twm)
 +  endif()
 +  
 +  set(HAVE_SDL_FILESYSTEM TRUE)
@@ -59,3 +62,15 @@ index faf6d90..844c3d7 100644
  
  elseif(VITA)
    # SDL_spinlock.c Needs to be compiled in ARM mode.
+diff --git a/include/build_config/SDL_build_config.h.cmake b/include/build_config/SDL_build_config.h.cmake
+index 17cb8f2..549fc2d 100644
+--- a/include/build_config/SDL_build_config.h.cmake
++++ b/include/build_config/SDL_build_config.h.cmake
+@@ -409,6 +409,7 @@
+ #cmakedefine SDL_VIDEO_DRIVER_PS2 1
+ #cmakedefine SDL_VIDEO_DRIVER_PSP 1
+ #cmakedefine SDL_VIDEO_DRIVER_RISCOS 1
++#cmakedefine SDL_VIDEO_DRIVER_STANIX 1
+ #cmakedefine SDL_VIDEO_DRIVER_ROCKCHIP 1
+ #cmakedefine SDL_VIDEO_DRIVER_RPI 1
+ #cmakedefine SDL_VIDEO_DRIVER_UIKIT 1
