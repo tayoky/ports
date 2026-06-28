@@ -1,5 +1,5 @@
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index faf6d90..0d8999b 100644
+index faf6d90..844c3d7 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
 @@ -1771,7 +1771,7 @@ elseif(EMSCRIPTEN)
@@ -11,7 +11,7 @@ index faf6d90..0d8999b 100644
  
    set(SDL_DISABLE_DLOPEN_NOTES TRUE)
    if(SDL_DLOPEN_NOTES)
-@@ -2915,6 +2915,42 @@ elseif(RISCOS)
+@@ -2915,6 +2915,47 @@ elseif(RISCOS)
    if(SDL_AUDIO)
      CheckOSS()
    endif()
@@ -28,10 +28,15 @@ index faf6d90..0d8999b 100644
 +    )
 +    set(HAVE_SDL_VIDEO TRUE)
 +  endif()
++  
++  set(HAVE_SDL_FILESYSTEM TRUE)
 +
 +  set(SDL_FSOPS_POSIX 1)
 +  sdl_sources("${SDL3_SOURCE_DIR}/src/filesystem/posix/SDL_sysfsops.c")
 +  set(HAVE_SDL_FSOPS TRUE)
++
++  set(SDL_FILESYSTEM_UNIX 1)
++  sdl_glob_sources("${SDL3_SOURCE_DIR}/src/filesystem/unix/*.c")
 +
 +  set(SDL_TIME_UNIX 1)
 +  sdl_glob_sources("${SDL3_SOURCE_DIR}/src/time/unix/*.c")
