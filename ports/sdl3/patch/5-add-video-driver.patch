@@ -24,12 +24,113 @@ index 48ed85a..6d65f0e 100644
  #ifdef SDL_VIDEO_DRIVER_RPI
      &RPI_bootstrap,
  #endif
+diff --git a/src/video/stanix/SDL_stanixmodes.c b/src/video/stanix/SDL_stanixmodes.c
+new file mode 100644
+index 0000000..f351e03
+--- /dev/null
++++ b/src/video/stanix/SDL_stanixmodes.c
+@@ -0,0 +1,59 @@
++/*
++  Simple DirectMedia Layer
++  Copyright (C) 1997-2026 Sam Lantinga <slouken@libsdl.org>
++
++  This software is provided 'as-is', without any express or implied
++  warranty.  In no event will the authors be held liable for any damages
++  arising from the use of this software.
++
++  Permission is granted to anyone to use this software for any purpose,
++  including commercial applications, and to alter it and redistribute it
++  freely, subject to the following restrictions:
++
++  1. The origin of this software must not be misrepresented; you must not
++     claim that you wrote the original software. If you use this software
++     in a product, an acknowledgment in the product documentation would be
++     appreciated but is not required.
++  2. Altered source versions must be plainly marked as such, and must not be
++     misrepresented as being the original software.
++  3. This notice may not be removed or altered from any source distribution.
++*/
++#include "SDL_internal.h"
++
++#ifdef SDL_VIDEO_DRIVER_STANIX
++
++#include "../SDL_sysvideo.h"
++#include "../../events/SDL_mouse_c.h"
++
++#include "SDL_stanixvideo.h"
++#include "SDL_stanixmodes.h"
++
++#include <twm.h>
++
++bool STANIX_InitModes(SDL_VideoDevice *_this)
++{
++    // TODO : remove this hack
++    SDL_DisplayMode mode = {
++		.format = SDL_PIXELFORMAT_XRGB8888,
++		.w = 1000,
++		.h = 800,
++		.refresh_rate = 60,
++	};
++
++    if (SDL_AddBasicVideoDisplay(&mode) == 0) {
++        return false;
++    }
++    return true;
++}
++
++bool STANIX_GetDisplayModes(SDL_VideoDevice *_this, SDL_VideoDisplay *display)
++{
++    return true;
++}
++
++bool STANIX_SetDisplayMode(SDL_VideoDevice *_this, SDL_VideoDisplay *display, SDL_DisplayMode *mode)
++{
++    return true;
++}
++
++#endif // SDL_VIDEO_DRIVER_STANIX
+diff --git a/src/video/stanix/SDL_stanixmodes.h b/src/video/stanix/SDL_stanixmodes.h
+new file mode 100644
+index 0000000..b7aa06e
+--- /dev/null
++++ b/src/video/stanix/SDL_stanixmodes.h
+@@ -0,0 +1,30 @@
++/*
++  Simple DirectMedia Layer
++  Copyright (C) 1997-2026 Sam Lantinga <slouken@libsdl.org>
++
++  This software is provided 'as-is', without any express or implied
++  warranty.  In no event will the authors be held liable for any damages
++  arising from the use of this software.
++
++  Permission is granted to anyone to use this software for any purpose,
++  including commercial applications, and to alter it and redistribute it
++  freely, subject to the following restrictions:
++
++  1. The origin of this software must not be misrepresented; you must not
++     claim that you wrote the original software. If you use this software
++     in a product, an acknowledgment in the product documentation would be
++     appreciated but is not required.
++  2. Altered source versions must be plainly marked as such, and must not be
++     misrepresented as being the original software.
++  3. This notice may not be removed or altered from any source distribution.
++*/
++#include "SDL_internal.h"
++
++#ifndef SDL_stanixmodes_h_
++#define SDL_stanixmodes_h_
++
++extern bool STANIX_InitModes(SDL_VideoDevice *_this);
++extern bool STANIX_GetDisplayModes(SDL_VideoDevice *_this, SDL_VideoDisplay *display);
++extern bool STANIX_SetDisplayMode(SDL_VideoDevice *_this, SDL_VideoDisplay *display, SDL_DisplayMode *mode);
++
++#endif // SDL_stanixmodes_h_
 diff --git a/src/video/stanix/SDL_stanixvideo.c b/src/video/stanix/SDL_stanixvideo.c
 new file mode 100644
-index 0000000..c472389
+index 0000000..ac9f949
 --- /dev/null
 +++ b/src/video/stanix/SDL_stanixvideo.c
-@@ -0,0 +1,100 @@
+@@ -0,0 +1,106 @@
 +/*
 +  Simple DirectMedia Layer
 +  Copyright (C) 1997-2026 Sam Lantinga <slouken@libsdl.org>
@@ -65,6 +166,7 @@ index 0000000..c472389
 +
 +#include "SDL_stanixvideo.h"
 +#include "SDL_stanixwindow.h"
++#include "SDL_stanixmodes.h"
 +#include "twm.h"
 +
 +// Initialization/Query functions
@@ -98,8 +200,8 @@ index 0000000..c472389
 +    device->VideoQuit = STANIX_VideoQuit;
 +    device->free      = STANIX_DeleteDevice;
 +
-+    device->CreateSDLWindow = SDL_CreateWindow;
-+    device->DestroyWindow   = SDL_DestroyWindow;
++    device->CreateSDLWindow = STANIX_CreateWindow;
++    device->DestroyWindow   = STANIX_DestroyWindow;
 +
 +    return device;
 +}
@@ -118,6 +220,11 @@ index 0000000..c472389
 +    if (twm_init(NULL) < 0) {
 +        SDL_SetError("Failed to connect to the twm server");
 +        SDL_LogDebug(SDL_LOG_CATEGORY_VIDEO, "Failed to connect to the twm server");
++        return false;
++    }
++    
++    if (!STANIX_InitModes(_this)) {
++        twm_fini();
 +        return false;
 +    }
 +    return true;
