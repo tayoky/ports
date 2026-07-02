@@ -26,7 +26,7 @@ index 48ed85a..6d65f0e 100644
  #endif
 diff --git a/src/video/stanix/SDL_stanixevents.c b/src/video/stanix/SDL_stanixevents.c
 new file mode 100644
-index 0000000..fc1bd6b
+index 0000000..27d24bc
 --- /dev/null
 +++ b/src/video/stanix/SDL_stanixevents.c
 @@ -0,0 +1,35 @@
@@ -99,6 +99,131 @@ index 0000000..441ac5a
 +extern void STANIX_PumpEvents(SDL_VideoDevice *_this);
 +
 +#endif // SDL_stanixevents_h_
+diff --git a/src/video/stanix/SDL_stanixframebuffer.c b/src/video/stanix/SDL_stanixframebuffer.c
+new file mode 100644
+index 0000000..6f42fee
+--- /dev/null
++++ b/src/video/stanix/SDL_stanixframebuffer.c
+@@ -0,0 +1,82 @@
++/*
++  Simple DirectMedia Layer
++  Copyright (C) 1997-2026 Sam Lantinga <slouken@libsdl.org>
++
++  This software is provided 'as-is', without any express or implied
++  warranty.  In no event will the authors be held liable for any damages
++  arising from the use of this software.
++
++  Permission is granted to anyone to use this software for any purpose,
++  including commercial applications, and to alter it and redistribute it
++  freely, subject to the following restrictions:
++
++  1. The origin of this software must not be misrepresented; you must not
++     claim that you wrote the original software. If you use this software
++     in a product, an acknowledgment in the product documentation would be
++     appreciated but is not required.
++  2. Altered source versions must be plainly marked as such, and must not be
++     misrepresented as being the original software.
++  3. This notice may not be removed or altered from any source distribution.
++*/
++#include "SDL_internal.h"
++
++#ifdef SDL_VIDEO_DRIVER_STANIX
++
++#include "../SDL_sysvideo.h"
++#include "SDL_stanixframebuffer.h"
++#include "SDL_stanixvideo.h"
++#include "SDL_stanixwindow.h"
++#include <unistd.h>
++#include <sys/mman.h>
++#include <twm.h>
++
++bool STANIX_CreateWindowFramebuffer(SDL_VideoDevice *_this, SDL_Window *window, SDL_PixelFormat *format, void **pixels, int *pitch)
++{
++    SDL_WindowData *data = window->internal;
++    const SDL_DisplayMode *mode;
++
++    // destroy any already created framebuffer
++    STANIX_DestroyWindowFramebuffer(_this, window);
++
++    int fd;
++    if (twm_get_window_fb(data->window, &fd, &data->fb_info) < 0) {
++        SDL_SetError("Failed to fetch framebuffer");
++        return false;
++    }
++
++    data->framebuffer = mmap(NULL, data->fb_info.pitch * data->fb_info.height, PROT_WRITE, MAP_SHARED, fd, 0);
++    data->backbuffer  = SDL_malloc(data->fb_info.pitch * data->fb_info.height);
++    close(fd);
++
++    mode = SDL_GetCurrentDisplayMode(SDL_GetDisplayForWindow(window));
++    *format = mode->format;
++    *pixels = data->backbuffer;
++    *pitch = data->fb_info.pitch;
++
++    return true;
++}
++
++bool STANIX_UpdateWindowFramebuffer(SDL_VideoDevice *_this, SDL_Window *window, const SDL_Rect *rects, int numrects)
++{
++    SDL_WindowData *data = window->internal;
++    // TODO : respect rects
++    (void)rects;
++    (void)numrects;
++    memcpy(data->framebuffer, data->backbuffer, data->fb_info.pitch * data->fb_info.height);
++    return twm_redraw_window(data->window, 0, 0, TWM_WHOLE_WIDTH, TWM_WHOLE_HEIGHT) >= 0;
++}
++
++void STANIX_DestroyWindowFramebuffer(SDL_VideoDevice *_this, SDL_Window *window)
++{
++    SDL_WindowData *data = window->internal;
++    if (data->framebuffer) {
++        munmap(data->framebuffer, data->fb_info.pitch * data->fb_info.height);
++        data->framebuffer = NULL;
++    }
++    if (data->backbuffer) {
++        free(data->backbuffer);
++        data->backbuffer = NULL;
++    }
++}
++
++#endif // SDL_VIDEO_DRIVER_STANIX
+diff --git a/src/video/stanix/SDL_stanixframebuffer.h b/src/video/stanix/SDL_stanixframebuffer.h
+new file mode 100644
+index 0000000..a157411
+--- /dev/null
++++ b/src/video/stanix/SDL_stanixframebuffer.h
+@@ -0,0 +1,31 @@
++/*
++  Simple DirectMedia Layer
++  Copyright (C) 1997-2026 Sam Lantinga <slouken@libsdl.org>
++
++  This software is provided 'as-is', without any express or implied
++  warranty.  In no event will the authors be held liable for any damages
++  arising from the use of this software.
++
++  Permission is granted to anyone to use this software for any purpose,
++  including commercial applications, and to alter it and redistribute it
++  freely, subject to the following restrictions:
++
++  1. The origin of this software must not be misrepresented; you must not
++     claim that you wrote the original software. If you use this software
++     in a product, an acknowledgment in the product documentation would be
++     appreciated but is not required.
++  2. Altered source versions must be plainly marked as such, and must not be
++     misrepresented as being the original software.
++  3. This notice may not be removed or altered from any source distribution.
++*/
++
++#ifndef SDL_stanixframebuffer_h_
++#define SDL_stanixframebuffer_h_
++
++#include "SDL_internal.h"
++
++extern bool STANIX_CreateWindowFramebuffer(SDL_VideoDevice *_this, SDL_Window *window, SDL_PixelFormat *format, void **pixels, int *pitch);
++extern bool STANIX_UpdateWindowFramebuffer(SDL_VideoDevice *_this, SDL_Window *window, const SDL_Rect *rects, int numrects);
++extern void STANIX_DestroyWindowFramebuffer(SDL_VideoDevice *_this, SDL_Window *window);
++
++#endif // SDL_stanixframebuffer_h_
 diff --git a/src/video/stanix/SDL_stanixmodes.c b/src/video/stanix/SDL_stanixmodes.c
 new file mode 100644
 index 0000000..f351e03
@@ -202,10 +327,10 @@ index 0000000..b7aa06e
 +#endif // SDL_stanixmodes_h_
 diff --git a/src/video/stanix/SDL_stanixvideo.c b/src/video/stanix/SDL_stanixvideo.c
 new file mode 100644
-index 0000000..fb9564b
+index 0000000..e9d5f64
 --- /dev/null
 +++ b/src/video/stanix/SDL_stanixvideo.c
-@@ -0,0 +1,108 @@
+@@ -0,0 +1,112 @@
 +/*
 +  Simple DirectMedia Layer
 +  Copyright (C) 1997-2026 Sam Lantinga <slouken@libsdl.org>
@@ -243,6 +368,7 @@ index 0000000..fb9564b
 +#include "SDL_stanixwindow.h"
 +#include "SDL_stanixmodes.h"
 +#include "SDL_stanixevents.h"
++#include "SDL_stanixframebuffer.h"
 +#include "twm.h"
 +
 +// Initialization/Query functions
@@ -279,6 +405,9 @@ index 0000000..fb9564b
 +    device->PumpEvents      = STANIX_PumpEvents;
 +    device->CreateSDLWindow = STANIX_CreateWindow;
 +    device->DestroyWindow   = STANIX_DestroyWindow;
++    device->CreateWindowFramebuffer  = STANIX_CreateWindowFramebuffer;
++    device->UpdateWindowFramebuffer  = STANIX_UpdateWindowFramebuffer;
++    device->DestroyWindowFramebuffer = STANIX_DestroyWindowFramebuffer;
 +
 +    return device;
 +}
@@ -427,10 +556,10 @@ index 0000000..639b60e
 +#endif // SDL_VIDEO_DRIVER_STANIX
 diff --git a/src/video/stanix/SDL_stanixwindow.h b/src/video/stanix/SDL_stanixwindow.h
 new file mode 100644
-index 0000000..012d728
+index 0000000..76151b3
 --- /dev/null
 +++ b/src/video/stanix/SDL_stanixwindow.h
-@@ -0,0 +1,37 @@
+@@ -0,0 +1,40 @@
 +/*
 +  Simple DirectMedia Layer
 +  Copyright (C) 1997-2026 Sam Lantinga <slouken@libsdl.org>
@@ -461,6 +590,9 @@ index 0000000..012d728
 +struct SDL_WindowData
 +{
 +    twm_window_t window;
++    twm_fb_info_t fb_info;
++    void *framebuffer;
++    void *backbuffer;
 +};
 +
 +extern bool STANIX_CreateWindow(SDL_VideoDevice *_this, SDL_Window *window, SDL_PropertiesID create_props);
