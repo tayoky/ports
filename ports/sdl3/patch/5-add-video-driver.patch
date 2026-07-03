@@ -327,10 +327,10 @@ index 0000000..b7aa06e
 +#endif // SDL_stanixmodes_h_
 diff --git a/src/video/stanix/SDL_stanixvideo.c b/src/video/stanix/SDL_stanixvideo.c
 new file mode 100644
-index 0000000..98d8180
+index 0000000..4418644
 --- /dev/null
 +++ b/src/video/stanix/SDL_stanixvideo.c
-@@ -0,0 +1,113 @@
+@@ -0,0 +1,117 @@
 +/*
 +  Simple DirectMedia Layer
 +  Copyright (C) 1997-2026 Sam Lantinga <slouken@libsdl.org>
@@ -402,10 +402,14 @@ index 0000000..98d8180
 +    device->VideoQuit = STANIX_VideoQuit;
 +    device->free      = STANIX_DeleteDevice;
 +
-+    device->PumpEvents      = STANIX_PumpEvents;
-+    device->CreateSDLWindow = STANIX_CreateWindow;
-+    device->DestroyWindow   = STANIX_DestroyWindow;
-+    device->SetWindowTitle  = STANIX_SetWindowTitle;
++    device->PumpEvents         = STANIX_PumpEvents;
++    device->CreateSDLWindow    = STANIX_CreateWindow;
++    device->DestroyWindow      = STANIX_DestroyWindow;
++    device->SetWindowTitle     = STANIX_SetWindowTitle;
++	device->SetWindowPosition  = STANIX_SetWindowPosition;
++	device->SetWindowSize      = STANIX_SetWindowSize;
++	device->SetWindowBordered  = STANIX_SetWindowBordered;
++	device->SetWindowResizable = STANIX_SetWindowResizable;
 +    device->CreateWindowFramebuffer  = STANIX_CreateWindowFramebuffer;
 +    device->UpdateWindowFramebuffer  = STANIX_UpdateWindowFramebuffer;
 +    device->DestroyWindowFramebuffer = STANIX_DestroyWindowFramebuffer;
@@ -492,10 +496,10 @@ index 0000000..b033126
 +#endif // SDL_x11video_h_
 diff --git a/src/video/stanix/SDL_stanixwindow.c b/src/video/stanix/SDL_stanixwindow.c
 new file mode 100644
-index 0000000..1a7d025
+index 0000000..192c701
 --- /dev/null
 +++ b/src/video/stanix/SDL_stanixwindow.c
-@@ -0,0 +1,63 @@
+@@ -0,0 +1,90 @@
 +/*
 +  Simple DirectMedia Layer
 +  Copyright (C) 1997-2026 Sam Lantinga <slouken@libsdl.org>
@@ -531,7 +535,8 @@ index 0000000..1a7d025
 +#include "SDL_stanixwindow.h"
 +#include <twm.h>
 +
-+extern bool STANIX_CreateWindow(SDL_VideoDevice *_this, SDL_Window *window, SDL_PropertiesID create_props) {
++extern bool STANIX_CreateWindow(SDL_VideoDevice *_this, SDL_Window *window, SDL_PropertiesID create_props)
++{
 +    SDL_WindowData *data = (struct SDL_WindowData *)SDL_calloc(1, sizeof(SDL_WindowData));
 +    data->window = twm_create_window("sdl window", window->w, window->h, TWM_NULL);
 +    if (data->window == TWM_NULL) {
@@ -546,25 +551,51 @@ index 0000000..1a7d025
 +    return true;
 +}
 +
-+extern void STANIX_DestroyWindow(SDL_VideoDevice *_this, SDL_Window *window) {
++extern void STANIX_DestroyWindow(SDL_VideoDevice *_this, SDL_Window *window)
++{
 +    SDL_WindowData *data = (struct SDL_WindowData *)window->internal;
 +    twm_destroy_window(data->window);
 +    SDL_free(data);
 +    window->internal = NULL;
 +}
 +
-+void STANIX_SetWindowTitle(SDL_VideoDevice *_this, SDL_Window *window) {
++void STANIX_SetWindowTitle(SDL_VideoDevice *_this, SDL_Window *window)
++{
 +    SDL_WindowData *data = (struct SDL_WindowData *)window->internal;
 +    twm_set_window_title(data->window, window->title);
++}
++
++void STANIX_SetWindowPosition(SDL_VideoDevice *_this, SDL_Window *window)
++{
++    SDL_WindowData *data = (struct SDL_WindowData *)window->internal;
++    twm_window_move(data->window, window->x, window->y);
++}
++
++void STANIX_SetWindowSize(SDL_VideoDevice *_this, SDL_Window *window)
++{
++    SDL_WindowData *data = (struct SDL_WindowData *)window->internal;
++    twm_window_resize(data->window, window->w, window->h);
++}
++
++void STANIX_SetWindowBordered(SDL_VideoDevice *_this, SDL_Window *window, bool bordered)
++{
++    SDL_WindowData *data = (struct SDL_WindowData *)window->internal;
++    twm_set_window_attr(data->window, bordered ? TWM_ADD_ATTR : TWM_REMOVE_ATTR, TWM_ATTR_DECORED);
++}
++
++void STANIX_SetWindowResizable(SDL_VideoDevice *_this, SDL_Window *window, bool resizable)
++{
++    SDL_WindowData *data = (struct SDL_WindowData *)window->internal;
++    twm_set_window_attr(data->window, resizable ? TWM_ADD_ATTR : TWM_REMOVE_ATTR, TWM_ATTR_RESIZABLE);
 +}
 +
 +#endif // SDL_VIDEO_DRIVER_STANIX
 diff --git a/src/video/stanix/SDL_stanixwindow.h b/src/video/stanix/SDL_stanixwindow.h
 new file mode 100644
-index 0000000..8e3da21
+index 0000000..4cfe641
 --- /dev/null
 +++ b/src/video/stanix/SDL_stanixwindow.h
-@@ -0,0 +1,40 @@
+@@ -0,0 +1,44 @@
 +/*
 +  Simple DirectMedia Layer
 +  Copyright (C) 1997-2026 Sam Lantinga <slouken@libsdl.org>
@@ -603,5 +634,9 @@ index 0000000..8e3da21
 +extern bool STANIX_CreateWindow(SDL_VideoDevice *_this, SDL_Window *window, SDL_PropertiesID create_props);
 +extern void STANIX_DestroyWindow(SDL_VideoDevice *_this, SDL_Window *window);
 +extern void STANIX_SetWindowTitle(SDL_VideoDevice *_this, SDL_Window *window);
++extern void STANIX_SetWindowPosition(SDL_VideoDevice *_this, SDL_Window *window);
++extern void STANIX_SetWindowSize(SDL_VideoDevice *_this, SDL_Window *window);
++extern void STANIX_SetWindowBordered(SDL_VideoDevice *_this, SDL_Window *window, bool bordered);
++extern void STANIX_SetWindowResizable(SDL_VideoDevice *_this, SDL_Window *window, bool resizable);
 +
 +#endif // SDL_x11window_h_
