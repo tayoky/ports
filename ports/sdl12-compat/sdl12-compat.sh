@@ -13,4 +13,7 @@ build() {
 
 install() {
 	make -C build install DESTDIR="$DESTDIR"
+
+	# symlink sdl.pc so old programs can find it
+	ln -sf "sdl12_compat.pc" "$DESTDIR/$PREFIX/lib/pkgconfig/sdl.pc"
 }
