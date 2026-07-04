@@ -26,10 +26,10 @@ index 48ed85a..6d65f0e 100644
  #endif
 diff --git a/src/video/stanix/SDL_stanixevents.c b/src/video/stanix/SDL_stanixevents.c
 new file mode 100644
-index 0000000..27d24bc
+index 0000000..51263e9
 --- /dev/null
 +++ b/src/video/stanix/SDL_stanixevents.c
-@@ -0,0 +1,35 @@
+@@ -0,0 +1,167 @@
 +/*
 +  Simple DirectMedia Layer
 +  Copyright (C) 1997-2026 Sam Lantinga <slouken@libsdl.org>
@@ -58,10 +58,142 @@ index 0000000..27d24bc
 +
 +#include "SDL_stanixvideo.h"
 +#include "SDL_stanixevents.h"
++#include <input.h>
++#include <twm.h>
++
++static SDL_Keycode translate_keycode(long stanix_key) {
++    switch (stanix_key) {
++    case INPUT_KEY_ESC:
++		return SDLK_ESCAPE;
++	case INPUT_KEY_TAB:
++		return SDLK_TAB;
++	case INPUT_KEY_BACKSPACE:
++		return SDLK_BACKSPACE;
++	case INPUT_KEY_ENTER:
++		return SDLK_RETURN;
++	case INPUT_KEY_DELETE:
++		return SDLK_DELETE;
++	case INPUT_KEY_INSERT:
++		return SDLK_INSERT;
++	case INPUT_KEY_HOME:
++		return SDLK_HOME;
++	case INPUT_KEY_END:
++		return SDLK_END;
++	case INPUT_KEY_ARROW_UP:
++		return SDLK_UP;
++	case INPUT_KEY_ARROW_DOWN:
++		return SDLK_DOWN;
++	case INPUT_KEY_ARROW_LEFT:
++		return SDLK_LEFT;
++	case INPUT_KEY_ARROW_RIGHT:
++		return SDLK_RIGHT;
++	case INPUT_KEY_PAGE_UP:
++		return SDLK_PAGEUP;
++	case INPUT_KEY_PAGE_DOWN:
++		return SDLK_PAGEDOWN;
++	case INPUT_KEY_LSHIFT:
++		return SDLK_LSHIFT;
++	case INPUT_KEY_RSHIFT:
++		return SDLK_RSHIFT;
++	case INPUT_KEY_LCTRL:
++		return SDLK_LCTRL;
++	case INPUT_KEY_RCTRL:
++		return SDLK_RCTRL;
++	case INPUT_KEY_LALT:
++		return SDLK_LALT;
++	case INPUT_KEY_RALT:
++	case INPUT_KEY_ALTGR:
++		return SDLK_RALT;
++	case INPUT_KEY_NUM_LOCK:
++		return SDLK_NUMLOCKCLEAR;
++	case INPUT_KEY_SCROLL_LOCK:
++		return SDLK_SCROLLLOCK;
++	case INPUT_KEY_CAPS_LOCK:
++		return SDLK_CAPSLOCK;
++	case INPUT_KEY_F1:
++		return SDLK_F1;
++	case INPUT_KEY_F2:
++		return SDLK_F2;
++	case INPUT_KEY_F3:
++		return SDLK_F3;
++	case INPUT_KEY_F4:
++		return SDLK_F4;
++	case INPUT_KEY_F5:
++		return SDLK_F5;
++	case INPUT_KEY_F6:
++		return SDLK_F6;
++	case INPUT_KEY_F7:
++		return SDLK_F7;
++	case INPUT_KEY_F8:
++		return SDLK_F8;
++	case INPUT_KEY_F9:
++		return SDLK_F9;
++	case INPUT_KEY_F10:
++		return SDLK_F10;
++	case INPUT_KEY_F11:
++		return SDLK_F11;
++	case INPUT_KEY_F12:
++		return SDLK_F12;
++	case INPUT_KEY_GUI:
++		return SDLK_LGUI;
++	case INPUT_KEY_VOLUME_UP:
++		return SDLK_VOLUMEUP;
++	case INPUT_KEY_VOLUME_DOWN:
++		return SDLK_VOLUMEDOWN;
++    default:
++        return stanix_key;
++    }
++}
++
++static uint8_t translate_mouse_button(long stanix_button) {
++    switch (stanix_button) {
++    case INPUT_KEY_MOUSE_LEFT:
++    default:
++        return SDL_BUTTON_LEFT;
++    case INPUT_KEY_MOUSE_MIDDLE:
++        return SDL_BUTTON_MIDDLE;
++    case INPUT_KEY_MOUSE_RIGHT:
++        return SDL_BUTTON_RIGHT;
++    }
++}
++
++static bool is_mouse_key(long key) {
++    if (key == INPUT_KEY_MOUSE_LEFT
++        || key == INPUT_KEY_MOUSE_MIDDLE
++        || key == INPUT_KEY_MOUSE_RIGHT) {
++        return true;
++    }
++    return false;
++}
++
++static void handle_input_event(twm_event_input_t *event) {
++    switch (event->type) {
++    case TWM_INPUT_KEY:
++        if (is_mouse_key(event->key.key)) {
++            SDL_Mouse *mouse = SDL_GetMouse();
++            SDL_SendMouseButton(0, mouse->focus, SDL_DEFAULT_MOUSE_ID, translate_mouse_button(event->key.key), event->key.flags & TWM_INPUT_PRESS);
++        } else {
++            // TODO : focus the correct window
++            SDL_SendKeyboardKey(0, SDL_DEFAULT_KEYBOARD_ID, event->key.key, translate_keycode(event->key.key), event->key.flags & TWM_INPUT_PRESS);
++        }
++        break;
++    case TWM_INPUT_MOVE:
++        //SDL_SendMouseMotion(0, mouse->focus, SDL_DEFAULT_MOUSE_ID, false, (float)x, (float)y);
++        break;
++    }
++}
 +
 +void STANIX_PumpEvents(SDL_VideoDevice *_this)
 +{
-+    // TODO
++    twm_event_t *event;
++    while ((event = twm_peek_event())) {
++        switch (event->type) {
++        case TWM_EVENT_INPUT:;
++            handle_input_event((twm_event_input_t*)event);
++            break;
++        }
++        free(event);
++    }
 +}
 +
 +#endif // SDL_VIDEO_DRIVER_STANIX
