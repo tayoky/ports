@@ -6,7 +6,6 @@ configure () {
 	cmake -B build -S . --toolchain="$CMAKE_CROSS" -DCMAKE_INSTALL_PREFIX="$PREFIX" \
 	-DSDL_GPU=OFF \
 	-DSDL_CAMERA=OFF \
-	-DSDL_JOYSTICK=OFF \
 	-DSDL_HAPTIC=OFF \
 	-DSDL_HIDAPI=OFF \
 	-DSDL_POWER=OFF \
