@@ -26,10 +26,10 @@ index 48ed85a..6d65f0e 100644
  #endif
 diff --git a/src/video/stanix/SDL_stanixevents.c b/src/video/stanix/SDL_stanixevents.c
 new file mode 100644
-index 0000000..51263e9
+index 0000000..0999b38
 --- /dev/null
 +++ b/src/video/stanix/SDL_stanixevents.c
-@@ -0,0 +1,167 @@
+@@ -0,0 +1,201 @@
 +/*
 +  Simple DirectMedia Layer
 +  Copyright (C) 1997-2026 Sam Lantinga <slouken@libsdl.org>
@@ -58,6 +58,7 @@ index 0000000..51263e9
 +
 +#include "SDL_stanixvideo.h"
 +#include "SDL_stanixevents.h"
++#include "SDL_stanixwindow.h"
 +#include <input.h>
 +#include <twm.h>
 +
@@ -166,6 +167,19 @@ index 0000000..51263e9
 +    return false;
 +}
 +
++static SDL_Window *get_window(twm_window_t twm_window) {
++    int count;
++    SDL_Window **windows = SDL_GetWindows(&count);
++    for (int i=0; i<count; i++) {
++        SDL_Window *window = windows[i];
++        SDL_WindowData *data = (struct SDL_WindowData *)window->internal;
++        if (data->window == twm_window) {
++            return window;
++        }
++    }
++    return NULL;
++}
++
 +static void handle_input_event(twm_event_input_t *event) {
 +    switch (event->type) {
 +    case TWM_INPUT_KEY:
@@ -188,8 +202,28 @@ index 0000000..51263e9
 +    twm_event_t *event;
 +    while ((event = twm_peek_event())) {
 +        switch (event->type) {
-+        case TWM_EVENT_INPUT:;
++        case TWM_EVENT_INPUT:
 +            handle_input_event((twm_event_input_t*)event);
++            break;
++        case TWM_EVENT_WINDOW_CLOSED:
++            twm_event_window_t *window_event = (twm_event_window_t*)event;
++            SDL_Window *window = get_window(window_event->window);
++            SDL_SendWindowEvent(window, SDL_EVENT_WINDOW_CLOSE_REQUESTED, 0, 0);
++            break;
++        case TWM_EVENT_WINDOW_FOCUS:;
++            window_event = (twm_event_window_t*)event;
++            window = get_window(window_event->window);
++            if (!window) break;
++            SDL_SendWindowEvent(window, SDL_EVENT_WINDOW_FOCUS_GAINED, 0, 0);
++            SDL_SetMouseFocus(window);
++            SDL_SetKeyboardFocus(window);
++            break;
++        case TWM_EVENT_WINDOW_UNFOCUS:
++            window_event = (twm_event_window_t*)event;
++            window = get_window(window_event->window);
++            SDL_SendWindowEvent(window, SDL_EVENT_WINDOW_FOCUS_LOST, 0, 0);
++            SDL_SetMouseFocus(NULL);
++            SDL_SetKeyboardFocus(NULL);
 +            break;
 +        }
 +        free(event);
@@ -459,7 +493,7 @@ index 0000000..b7aa06e
 +#endif // SDL_stanixmodes_h_
 diff --git a/src/video/stanix/SDL_stanixvideo.c b/src/video/stanix/SDL_stanixvideo.c
 new file mode 100644
-index 0000000..4418644
+index 0000000..2824e20
 --- /dev/null
 +++ b/src/video/stanix/SDL_stanixvideo.c
 @@ -0,0 +1,117 @@
@@ -550,7 +584,7 @@ index 0000000..4418644
 +}
 +
 +VideoBootStrap STANIX_bootstrap = {
-+    "stanix", "SDL Stanix twm video driver",
++    "Stanix twm", "SDL Stanix twm video driver",
 +    STANIX_CreateDevice,
 +    NULL, // no message box
 +    false
@@ -628,7 +662,7 @@ index 0000000..b033126
 +#endif // SDL_x11video_h_
 diff --git a/src/video/stanix/SDL_stanixwindow.c b/src/video/stanix/SDL_stanixwindow.c
 new file mode 100644
-index 0000000..192c701
+index 0000000..2dd1030
 --- /dev/null
 +++ b/src/video/stanix/SDL_stanixwindow.c
 @@ -0,0 +1,90 @@
@@ -697,10 +731,10 @@ index 0000000..192c701
 +    twm_set_window_title(data->window, window->title);
 +}
 +
-+void STANIX_SetWindowPosition(SDL_VideoDevice *_this, SDL_Window *window)
++bool STANIX_SetWindowPosition(SDL_VideoDevice *_this, SDL_Window *window)
 +{
 +    SDL_WindowData *data = (struct SDL_WindowData *)window->internal;
-+    twm_window_move(data->window, window->x, window->y);
++    return twm_window_move(data->window, window->x, window->y) >= 0;
 +}
 +
 +void STANIX_SetWindowSize(SDL_VideoDevice *_this, SDL_Window *window)
@@ -724,7 +758,7 @@ index 0000000..192c701
 +#endif // SDL_VIDEO_DRIVER_STANIX
 diff --git a/src/video/stanix/SDL_stanixwindow.h b/src/video/stanix/SDL_stanixwindow.h
 new file mode 100644
-index 0000000..4cfe641
+index 0000000..48670b9
 --- /dev/null
 +++ b/src/video/stanix/SDL_stanixwindow.h
 @@ -0,0 +1,44 @@
@@ -766,7 +800,7 @@ index 0000000..4cfe641
 +extern bool STANIX_CreateWindow(SDL_VideoDevice *_this, SDL_Window *window, SDL_PropertiesID create_props);
 +extern void STANIX_DestroyWindow(SDL_VideoDevice *_this, SDL_Window *window);
 +extern void STANIX_SetWindowTitle(SDL_VideoDevice *_this, SDL_Window *window);
-+extern void STANIX_SetWindowPosition(SDL_VideoDevice *_this, SDL_Window *window);
++extern bool STANIX_SetWindowPosition(SDL_VideoDevice *_this, SDL_Window *window);
 +extern void STANIX_SetWindowSize(SDL_VideoDevice *_this, SDL_Window *window);
 +extern void STANIX_SetWindowBordered(SDL_VideoDevice *_this, SDL_Window *window, bool bordered);
 +extern void STANIX_SetWindowResizable(SDL_VideoDevice *_this, SDL_Window *window, bool resizable);
