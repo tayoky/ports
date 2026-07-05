@@ -1,0 +1,13 @@
+diff --git a/src/sdl2_compat.c b/src/sdl2_compat.c
+index 0adc68b..e47c5b7 100644
+--- a/src/sdl2_compat.c
++++ b/src/sdl2_compat.c
+@@ -425,7 +425,7 @@ static char loaderror[256];
+     }
+ #elif defined(SDL_PLATFORM_UNIX)
+     #include <dlfcn.h>
+-    #ifdef __ANDROID__
++    #if defined(__ANDROID__) || defined(__stanix__)
+         #define SDL3_LIBNAME "libSDL3.so"
+     #else
+         #define SDL3_LIBNAME "libSDL3.so.0"
