@@ -1,7 +1,7 @@
 VERSION="12.2.0"
 TAR="$GNU_MIRROR/gcc/gcc-$VERSION/gcc-$VERSION.tar.xz"
 WEBSITE="https://www.gnu.org/software/gcc/"
-DEPENDENCIES="libgmp libmpfr libmpc"
+DEPENDENCIES="libgmp libmpfr libmpc binutils"
 
 configure() {
 	./configure --host="$HOST" \

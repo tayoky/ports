@@ -1,6 +1,7 @@
 GIT=https://github.com/libsdl-org/sdl2-compat
 TAG=release-2.32.70
 WEBSITE=https://libsdl.org/
+DEPENDENCIES="sdl3"
 
 configure () {
 	cmake -B build -S . --toolchain="$CMAKE_CROSS" -DCMAKE_INSTALL_PREFIX="$PREFIX" \
