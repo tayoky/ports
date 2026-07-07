@@ -26,10 +26,10 @@ index 48ed85a..6d65f0e 100644
  #endif
 diff --git a/src/video/stanix/SDL_stanixevents.c b/src/video/stanix/SDL_stanixevents.c
 new file mode 100644
-index 0000000..0999b38
+index 0000000..93a2c6d
 --- /dev/null
 +++ b/src/video/stanix/SDL_stanixevents.c
-@@ -0,0 +1,201 @@
+@@ -0,0 +1,359 @@
 +/*
 +  Simple DirectMedia Layer
 +  Copyright (C) 1997-2026 Sam Lantinga <slouken@libsdl.org>
@@ -146,6 +146,132 @@ index 0000000..0999b38
 +    }
 +}
 +
++
++static SDL_Scancode translate_scancode(long stanix_scancode) {
++    switch (stanix_scancode) {
++    case 0x01:
++        return SDL_SCANCODE_ESCAPE;
++    case 0x02:
++        return SDL_SCANCODE_1;
++    case 0x03:
++        return SDL_SCANCODE_2;
++    case 0x04:
++        return SDL_SCANCODE_3;
++    case 0x05:
++        return SDL_SCANCODE_4;
++    case 0x06:
++        return SDL_SCANCODE_5;
++    case 0x07:
++        return SDL_SCANCODE_6;
++    case 0x08:
++        return SDL_SCANCODE_7;
++    case 0x09:
++        return SDL_SCANCODE_8;
++    case 0x0a:
++        return SDL_SCANCODE_9;
++    case 0x0b:
++        return SDL_SCANCODE_0;
++    case 0x0c:
++        return SDL_SCANCODE_MINUS;
++    case 0x0d:
++        return SDL_SCANCODE_EQUALS;
++    case 0x0e:
++        return SDL_SCANCODE_BACKSPACE;
++    case 0x10:
++        return SDL_SCANCODE_Q;
++    case 0x11:
++        return SDL_SCANCODE_W;
++    case 0x12:
++        return SDL_SCANCODE_E;
++    case 0x13:
++        return SDL_SCANCODE_R;
++    case 0x14:
++        return SDL_SCANCODE_T;
++    case 0x15:
++        return SDL_SCANCODE_Y;
++    case 0x16:
++        return SDL_SCANCODE_U;
++    case 0x17:
++        return SDL_SCANCODE_I;
++    case 0x18:
++        return SDL_SCANCODE_O;
++    case 0x19:
++        return SDL_SCANCODE_P;
++    case 0x1a:
++        return SDL_SCANCODE_LEFTBRACKET;
++    case 0x1b:
++        return SDL_SCANCODE_RIGHTBRACKET;
++    case 0x1c:
++        return SDL_SCANCODE_RETURN;
++    case 0x1d:
++        return SDL_SCANCODE_LCTRL;
++    case 0x1e:
++        return SDL_SCANCODE_A;
++    case 0x1f:
++        return SDL_SCANCODE_S;
++    case 0x20:
++        return SDL_SCANCODE_D;
++    case 0x21:
++        return SDL_SCANCODE_F;
++    case 0x22:
++        return SDL_SCANCODE_G;
++    case 0x23:
++        return SDL_SCANCODE_H;
++    case 0x24:
++        return SDL_SCANCODE_J;
++    case 0x25:
++        return SDL_SCANCODE_K;
++    case 0x26:
++        return SDL_SCANCODE_L;
++    case 0x27:
++        return SDL_SCANCODE_SEMICOLON;
++    // no quote/backtick ???
++    case 0x2a:
++        return SDL_SCANCODE_LSHIFT;
++    case 0x2b:
++        return SDL_SCANCODE_BACKSLASH;
++    // TODO : add more
++
++    // extendeds
++    case 0x9c:
++        return SDL_SCANCODE_RETURN2;
++    case 0x9d:
++        return SDL_SCANCODE_RCTRL;
++    case 0xae:
++        return SDL_SCANCODE_VOLUMEDOWN;
++    case 0xb0:
++        return SDL_SCANCODE_VOLUMEUP;
++    case 0xb8:
++        return SDL_SCANCODE_RALT;
++    case 0xc7:
++        return SDL_SCANCODE_HOME;
++    case 0xc8:
++        return SDL_SCANCODE_UP;
++    case 0xc9:
++        return SDL_SCANCODE_PAGEUP;
++    case 0xcb:
++        return SDL_SCANCODE_LEFT;
++    case 0xcd:
++        return SDL_SCANCODE_RIGHT;
++    case 0xcf:
++        return SDL_SCANCODE_END;
++    case 0xd0:
++        return SDL_SCANCODE_DOWN;
++    case 0xd1:
++        return SDL_SCANCODE_PAGEDOWN;
++    case 0xd2:
++        return SDL_SCANCODE_INSERT;
++    case 0xd3:
++        return SDL_SCANCODE_DELETE;
++    case 0xdb:
++        return SDL_SCANCODE_LGUI;
++    case 0xdc:
++        return SDL_SCANCODE_RGUI;
++    default:
++        return SDL_SCANCODE_UNKNOWN;
++    }
++}
++
 +static uint8_t translate_mouse_button(long stanix_button) {
 +    switch (stanix_button) {
 +    case INPUT_KEY_MOUSE_LEFT:
@@ -188,13 +314,42 @@ index 0000000..0999b38
 +            SDL_SendMouseButton(0, mouse->focus, SDL_DEFAULT_MOUSE_ID, translate_mouse_button(event->key.key), event->key.flags & TWM_INPUT_PRESS);
 +        } else {
 +            // TODO : focus the correct window
-+            SDL_SendKeyboardKey(0, SDL_DEFAULT_KEYBOARD_ID, event->key.key, translate_keycode(event->key.key), event->key.flags & TWM_INPUT_PRESS);
++            printf("send scancode=%d keycode=%d press=%d\n", translate_scancode(event->key.scancode), translate_keycode(event->key.key), event->key.flags & TWM_INPUT_PRESS);
++            SDL_SendKeyboardKey(0, SDL_DEFAULT_KEYBOARD_ID, translate_scancode(event->key.scancode), translate_keycode(event->key.key), event->key.flags & TWM_INPUT_PRESS);
 +        }
 +        break;
 +    case TWM_INPUT_MOVE:
 +        //SDL_SendMouseMotion(0, mouse->focus, SDL_DEFAULT_MOUSE_ID, false, (float)x, (float)y);
 +        break;
 +    }
++}
++
++static void handle_window_event(twm_event_window_t *event) {
++    SDL_Window *window = get_window(event->window);
++    if (!window) return;
++
++    SDL_EventType type = 0;
++    switch (event->base.type) {
++    case TWM_EVENT_WINDOW_CLOSED:
++        type = SDL_EVENT_WINDOW_CLOSE_REQUESTED;
++        break;
++    case TWM_EVENT_WINDOW_RESIZED:
++        type = SDL_EVENT_WINDOW_RESIZED;
++        // TODO : send new size
++        break;
++    case TWM_EVENT_WINDOW_MAXIMIZED:
++        type = SDL_EVENT_WINDOW_MAXIMIZED;
++        break;
++    case TWM_EVENT_WINDOW_MINIMIZED:
++        type = SDL_EVENT_WINDOW_MINIMIZED;
++        break;
++    case TWM_EVENT_WINDOW_UNMAXIMIZED:
++    case TWM_EVENT_WINDOW_RESTORED:
++        type = SDL_EVENT_WINDOW_RESTORED;
++        break;
++    }
++
++    SDL_SendWindowEvent(window, type, 0, 0);
 +}
 +
 +void STANIX_PumpEvents(SDL_VideoDevice *_this)
@@ -206,13 +361,16 @@ index 0000000..0999b38
 +            handle_input_event((twm_event_input_t*)event);
 +            break;
 +        case TWM_EVENT_WINDOW_CLOSED:
-+            twm_event_window_t *window_event = (twm_event_window_t*)event;
-+            SDL_Window *window = get_window(window_event->window);
-+            SDL_SendWindowEvent(window, SDL_EVENT_WINDOW_CLOSE_REQUESTED, 0, 0);
++        case TWM_EVENT_WINDOW_RESIZED:
++        case TWM_EVENT_WINDOW_MAXIMIZED:
++        case TWM_EVENT_WINDOW_UNMAXIMIZED:
++        case TWM_EVENT_WINDOW_MINIMIZED:
++        case TWM_EVENT_WINDOW_RESTORED:
++            handle_window_event((twm_event_window_t*)event);
 +            break;
 +        case TWM_EVENT_WINDOW_FOCUS:;
-+            window_event = (twm_event_window_t*)event;
-+            window = get_window(window_event->window);
++            twm_event_window_t *window_event = (twm_event_window_t*)event;
++            SDL_Window *window = get_window(window_event->window);
 +            if (!window) break;
 +            SDL_SendWindowEvent(window, SDL_EVENT_WINDOW_FOCUS_GAINED, 0, 0);
 +            SDL_SetMouseFocus(window);
