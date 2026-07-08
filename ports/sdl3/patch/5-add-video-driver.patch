@@ -26,10 +26,10 @@ index 48ed85a..6d65f0e 100644
  #endif
 diff --git a/src/video/stanix/SDL_stanixevents.c b/src/video/stanix/SDL_stanixevents.c
 new file mode 100644
-index 0000000..93a2c6d
+index 0000000..20e005a
 --- /dev/null
 +++ b/src/video/stanix/SDL_stanixevents.c
-@@ -0,0 +1,359 @@
+@@ -0,0 +1,444 @@
 +/*
 +  Simple DirectMedia Layer
 +  Copyright (C) 1997-2026 Sam Lantinga <slouken@libsdl.org>
@@ -228,11 +228,92 @@ index 0000000..93a2c6d
 +    // no quote/backtick ???
 +    case 0x2a:
 +        return SDL_SCANCODE_LSHIFT;
-+    case 0x2b:
-+        return SDL_SCANCODE_BACKSLASH;
-+    // TODO : add more
++    case 0x2c:
++        return SDL_SCANCODE_Z;
++    case 0x2d:
++        return SDL_SCANCODE_X;
++    case 0x2e:
++        return SDL_SCANCODE_C;
++    case 0x2f:
++        return SDL_SCANCODE_V;
++    case 0x30:
++        return SDL_SCANCODE_B;
++    case 0x31:
++        return SDL_SCANCODE_N;
++    case 0x32:
++        return SDL_SCANCODE_M;
++    case 0x33:
++        return SDL_SCANCODE_COMMA;
++    case 0x34:
++        return SDL_SCANCODE_PERIOD;
++    case 0x35:
++        return SDL_SCANCODE_SLASH;
++    case 0x36:
++        return SDL_SCANCODE_RSHIFT;
++    case 0x37:
++        return SDL_SCANCODE_KP_MULTIPLY;
++    case 0x38:
++        return SDL_SCANCODE_LALT;
++    case 0x39:
++        return SDL_SCANCODE_SPACE;
++    case 0x3a:
++        return SDL_SCANCODE_CAPSLOCK;
++    case 0x3b:
++        return SDL_SCANCODE_F1;
++    case 0x3c:
++        return SDL_SCANCODE_F2;
++    case 0x3d:
++        return SDL_SCANCODE_F3;
++    case 0x3e:
++        return SDL_SCANCODE_F4;
++    case 0x3f:
++        return SDL_SCANCODE_F5;
++    case 0x40:
++        return SDL_SCANCODE_F6;
++    case 0x41:
++        return SDL_SCANCODE_F7;
++    case 0x42:
++        return SDL_SCANCODE_F8;
++    case 0x43:
++        return SDL_SCANCODE_F9;
++    case 0x44:
++        return SDL_SCANCODE_F10;
++    case 0x45:
++        return SDL_SCANCODE_NUMLOCKCLEAR;
++    case 0x46:
++        return SDL_SCANCODE_SCROLLLOCK;
++    case 0x47:
++        return SDL_SCANCODE_KP_7;
++    case 0x48:
++        return SDL_SCANCODE_KP_8;
++    case 0x49:
++        return SDL_SCANCODE_KP_9;
++    case 0x4a:
++        return SDL_SCANCODE_KP_MINUS;
++    case 0x4b:
++        return SDL_SCANCODE_KP_4;
++    case 0x4c:
++        return SDL_SCANCODE_KP_5;
++    case 0x4d:
++        return SDL_SCANCODE_KP_6;
++    case 0x4e:
++        return SDL_SCANCODE_KP_PLUS;
++    case 0x4f:
++        return SDL_SCANCODE_KP_1;
++    case 0x50:
++        return SDL_SCANCODE_KP_2;
++    case 0x51:
++        return SDL_SCANCODE_KP_3;
++    case 0x52:
++        return SDL_SCANCODE_KP_0;
++    case 0x53:
++        return SDL_SCANCODE_KP_PERIOD;
++    case 0x57:
++        return SDL_SCANCODE_F11;
++    case 0x58:
++        return SDL_SCANCODE_F12;
 +
-+    // extendeds
++    // extended
 +    case 0x9c:
 +        return SDL_SCANCODE_RETURN2;
 +    case 0x9d:
@@ -314,8 +395,12 @@ index 0000000..93a2c6d
 +            SDL_SendMouseButton(0, mouse->focus, SDL_DEFAULT_MOUSE_ID, translate_mouse_button(event->key.key), event->key.flags & TWM_INPUT_PRESS);
 +        } else {
 +            // TODO : focus the correct window
-+            printf("send scancode=%d keycode=%d press=%d\n", translate_scancode(event->key.scancode), translate_keycode(event->key.key), event->key.flags & TWM_INPUT_PRESS);
-+            SDL_SendKeyboardKey(0, SDL_DEFAULT_KEYBOARD_ID, translate_scancode(event->key.scancode), translate_keycode(event->key.key), event->key.flags & TWM_INPUT_PRESS);
++            SDL_SendKeyboardKeyAndKeycode(0, SDL_DEFAULT_KEYBOARD_ID, event->key.scancode, translate_scancode(event->key.scancode), translate_keycode(event->key.key), event->key.flags & TWM_INPUT_PRESS);
++            if (event->key.flags & TWM_INPUT_PRESS && event->key.key < INPUT_KEY_FIRST) {
++	            char buf[MB_CUR_MAX + 1];
++	            wctomb(buf, event->key.key);
++                SDL_SendKeyboardText(buf);
++            }
 +        }
 +        break;
 +    case TWM_INPUT_MOVE:
