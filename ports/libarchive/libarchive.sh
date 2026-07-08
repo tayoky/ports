@@ -4,7 +4,8 @@ WEBSITE="https://www.libarchive.org/"
 DEPENDENCIES="zlib"
 
 configure() {
-	cmake -B build -S . --toolchain="$CMAKE_CROSS" -DCMAKE_INSTALL_PREFIX="$PREFIX"
+	cmake -B build -S . --toolchain="$CMAKE_CROSS" -DCMAKE_INSTALL_PREFIX="$PREFIX" \
+	-DZLIB_INCLUDE_DIR="$DESTDIR$PREFIX/include" -DZLIB_LIBRARY="-lz"
 }
 
 build() {
