@@ -1,6 +1,6 @@
 diff --git a/Makefile-stanix b/Makefile-stanix
 new file mode 100644
-index 0000000..6a78776
+index 0000000..f5a5955
 --- /dev/null
 +++ b/Makefile-stanix
 @@ -0,0 +1,690 @@
@@ -30,7 +30,7 @@ index 0000000..6a78776
 +	-malign-jumps=2 -malign-functions=2
 +
 +DEBUG_CFLAGS=$(BASE_CFLAGS) -g
-+LDFLAGS=-ldl -lm -linput -lgfx
++LDFLAGS=-ldl -lm -ltwm -lgfx
 +
 +
 +SHLIBEXT=so
@@ -696,10 +696,10 @@ index 0000000..6a78776
 +	-rm $(BUILDDIR)/*.o
 diff --git a/port_soft_stanix.c b/port_soft_stanix.c
 new file mode 100644
-index 0000000..a3752c2
+index 0000000..20e1738
 --- /dev/null
 +++ b/port_soft_stanix.c
-@@ -0,0 +1,298 @@
+@@ -0,0 +1,303 @@
 +
 +#include <stdio.h>
 +
@@ -718,8 +718,7 @@ index 0000000..a3752c2
 +#include <sys/ioctl.h>
 +#include <sys/mman.h>
 +#include <sys/time.h>
-+#include <sys/fb.h>
-+#include <libinput.h>
++#include <twm.h>
 +#include <input.h>
 +#include <gfx.h>
 +
@@ -732,11 +731,9 @@ index 0000000..a3752c2
 +static int _width = 640;
 +static int _height = 480;
 +
-+gfx_t *gfx;
-+
++static gfx_t *gfx;
++static twm_window_t window;
 +static char * s_ScreenMemory = NULL;
-+
-+static libinput_keyboard_t *keyboard = NULL;
 +
 +static unsigned int s_PositionX = 0;
 +static unsigned int s_PositionY = 0;
@@ -784,6 +781,11 @@ index 0000000..a3752c2
 +	*pwidth = width;
 +	*pheight = height;
 +
++	twm_window_resize(window, width, height);
++	gfx = twm_get_window_gfx(window);
++	s_ScreenWidth = gfx->width;
++	s_ScreenHeight = gfx->height;
++
 +	setupWindow();	
 +
 +	// let the sound and input subsystems know about the new window
@@ -806,22 +808,16 @@ index 0000000..a3752c2
 +
 +int SWimp_Init( void *hInstance, void *wndProc )
 +{
-+	gfx = gfx_open_framebuffer(NULL);
-+	if (!gfx) {
-+		perror("open framebuffer");
++	if (twm_init(NULL) < 0) {
++		fprintf(stderr, "failed to init twm\n");
 +		return false;
 +	}
++	window = twm_create_window("Quake2", 640, 480, TWM_NULL);
++	gfx = twm_get_window_gfx(window);
 +
-+	
 +	s_ScreenWidth = gfx->width;
 +	s_ScreenHeight = gfx->height;
 +	printf("got screen of size %ux%u\n", s_ScreenWidth, s_ScreenHeight);
-+
-+	keyboard = libinput_open_keyboard("/dev/kb0", O_NONBLOCK);
-+	if (!keyboard) {
-+		perror("/dev/kb0");
-+		return false;
-+	}
 +
 +	setupWindow(false);
 +
@@ -874,6 +870,7 @@ index 0000000..a3752c2
 +		}
 +	}
 +	gfx_push_buffer(gfx);
++	twm_redraw_window(window, 0, 0, _width, _height);
 +}
 +
 +
@@ -885,9 +882,9 @@ index 0000000..a3752c2
 +
 +#define KEY(key) case INPUT_KEY_ ## key:\
 +	return K_ ## key;
-+static unsigned char ConvertToQuakeKey(struct input_event *event)
++static unsigned char ConvertToQuakeKey(twm_event_input_t *event)
 +{
-+	switch (event->ie_key.key) {
++	switch (event->key.key) {
 +	KEY(TAB)
 +	KEY(ENTER)
 +	case INPUT_KEY_ESC:
@@ -934,18 +931,26 @@ index 0000000..a3752c2
 +	case INPUT_KEY_PAGE_UP:
 +		return K_PGUP;
 +	default:
-+		return event->ie_key.key;
++		return event->key.key;
 +	}     
 +}
 +
-+void HandleInput(void)
++static void HandleInputEvent(twm_event_input_t *event)
 +{
-+	// handle keyboard events
-+	struct input_event event;
-+	while (libinput_get_keyboard_event(keyboard, &event) >= 0) {
-+		// ignore hold
-+		if (event.ie_key.flags & IE_KEY_HOLD) continue;
-+		Quake2_SendKey(ConvertToQuakeKey(&event), event.ie_key.flags & IE_KEY_PRESS);
++	if (event->type != TWM_INPUT_KEY) return;
++	Quake2_SendKey(ConvertToQuakeKey(event), event->key.flags & TWM_INPUT_PRESS);
++}
++
++void HandleEvents(void)
++{
++	// handle events
++	twm_event_t *event;
++	while ((event = twm_peek_event())) {
++		switch (event->type) {
++		case TWM_EVENT_INPUT:
++			HandleInputEvent((twm_event_input_t*)event);
++			break;
++		}
 +	}
 +}
 +
@@ -984,7 +989,7 @@ index 0000000..a3752c2
 +		oldtime = Quake2_Milliseconds ();
 +		while (1)
 +		{
-+			HandleInput();
++			HandleEvents();
 +			
 +			do {
 +				newtime = Quake2_Milliseconds ();
