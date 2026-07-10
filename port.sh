@@ -20,6 +20,7 @@ port_init () {
 	export NPROC=$(nproc)
 	export MESON_CROSS="$(realpath ./meson-cross.txt)"
 	export CMAKE_CROSS="$(realpath ./cmake-cross.cmake)"
+	export CONFIG_SUB="$(realpath ./config.sub)"
 	test -z "$SYSROOT" && SYSROOT="/"
 	test -z "$DESTDIR" && DESTDIR="$SYSROOT"
 	export PREFIX
