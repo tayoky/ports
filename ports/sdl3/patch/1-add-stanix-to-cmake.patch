@@ -1,3 +1,16 @@
+diff --git a/cmake/macros.cmake b/cmake/macros.cmake
+index 038dd98..6620c67 100644
+--- a/cmake/macros.cmake
++++ b/cmake/macros.cmake
+@@ -409,7 +409,7 @@ function(SDL_PrintSummary)
+     message(STATUS "")
+   endif()
+ 
+-  if(UNIX AND NOT (ANDROID OR APPLE OR EMSCRIPTEN OR HAIKU OR RISCOS))
++  if(UNIX AND NOT (ANDROID OR APPLE OR EMSCRIPTEN OR HAIKU OR RISCOS OR STANIX))
+     if(NOT (HAVE_X11 OR HAVE_WAYLAND))
+       if(NOT SDL_UNIX_CONSOLE_BUILD)
+         message(FATAL_ERROR
 diff --git a/CMakeLists.txt b/CMakeLists.txt
 index faf6d90..d599e06 100644
 --- a/CMakeLists.txt
