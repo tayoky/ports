@@ -827,7 +827,7 @@ index 0000000..2824e20
 +}
 +
 +VideoBootStrap STANIX_bootstrap = {
-+    "Stanix twm", "SDL Stanix twm video driver",
++    "stanix", "SDL Stanix twm video driver",
 +    STANIX_CreateDevice,
 +    NULL, // no message box
 +    false
