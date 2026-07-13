@@ -5,7 +5,7 @@ DEPENDENCIES="sdl2-compat"
 
 configure () {
 	cmake -B build -S . --toolchain="$CMAKE_CROSS" -DCMAKE_INSTALL_PREFIX="$PREFIX" \
-	-DSDL12TESTS=OFF -DSTANIX=ON -DUNIX=ON
+	-DSDL12TESTS=OFF
 }
 
 build() {
