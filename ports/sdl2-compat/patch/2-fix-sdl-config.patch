@@ -1,0 +1,22 @@
+Thanks bananymous for this :D
+diff -ruN sdl2-compat-2.32.70/sdl2-config.in sdl2-compat-2.32.70-banan_os/sdl2-config.in
+--- sdl2-compat-2.32.70/sdl2-config.in	2023-07-26 08:40:50.000000000 +0300
++++ sdl2-compat-2.32.70-banan_os/sdl2-config.in	2026-07-04 00:30:22.699878722 +0300
+@@ -7,11 +7,14 @@
+ 
+ # Copied and modified from SDL2's sdl2-compat.
+ 
+-prefix=@CMAKE_INSTALL_PREFIX@
++# Get the canonical path of the folder containing this script
++bindir=`cd -P -- "\`dirname -- "$0"\`" && printf '%s\n' "\`pwd -P\`"`
++
++prefix=`cd -P -- "$bindir/.." && printf '%s\n' "\`pwd -P\`"`
+ exec_prefix=${prefix}
+ exec_prefix_set=no
+-libdir=@CMAKE_INSTALL_FULL_LIBDIR@
+-includedir=@CMAKE_INSTALL_FULL_INCLUDEDIR@
++libdir=$prefix/lib
++includedir=$prefix/include
+ 
+ @ENABLE_STATIC_FALSE@usage="\
+ @ENABLE_STATIC_FALSE@Usage: $0 [--prefix[=DIR]] [--exec-prefix[=DIR]] [--version] [--cflags] [--libs]"
