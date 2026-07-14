@@ -434,7 +434,7 @@ index 0000000..20e005a
 +        break;
 +    }
 +
-+    SDL_SendWindowEvent(window, type, 0, 0);
++    SDL_SendWindowEvent(window, type, event->a, event->b);
 +}
 +
 +void STANIX_PumpEvents(SDL_VideoDevice *_this)
