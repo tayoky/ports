@@ -1,0 +1,13 @@
+diff --git a/src/osdef1.h.in b/src/osdef1.h.in
+index e8204b0..48e45ae 100644
+--- a/src/osdef1.h.in
++++ b/src/osdef1.h.in
+@@ -42,7 +42,7 @@ extern int	_flsbuf(int, FILE *);
+ extern int	_filbuf(FILE *);
+ #endif
+ 
+-#if !defined(HAVE_SELECT)
++#if !defined(HAVE_SELECT) && !defined(__stanix__)
+ struct pollfd;			/* for poll() */
+ extern int	poll(struct pollfd *, long, int);
+ #endif
