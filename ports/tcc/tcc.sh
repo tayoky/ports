@@ -4,8 +4,8 @@ WEBSITE="https://bellard.org/tcc/"
 
 configure() {
 	./configure --prefix=$PREFIX --sysroot=$SYSROOT --targetos=stanix --enable-static --cc=$CC --triplet=x86_64-stanix \
-    --sysincludepaths=/usr/include:$PREFIX/lib/tcc/include \
-    --libpaths=/usr/lib:$PREFIX/lib/tcc \
+    --sysincludepaths=/usr/include:/usr/local/include:$PREFIX/lib/tcc/include \
+    --libpaths=/lib:/usr/lib:/usr/local/lib:$PREFIX/lib/tcc \
     --crtprefix=/usr/lib \
     --elfinterp=/usr/lib/ld-tlibc.so
     
