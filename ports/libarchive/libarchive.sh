@@ -1,7 +1,7 @@
 VERSION="3.8.8"
 TAR="https://www.libarchive.org/downloads/libarchive-$VERSION.tar.xz"
 WEBSITE="https://www.libarchive.org/"
-DEPENDENCIES="zlib"
+DEPENDENCIES="zlib libzstd"
 
 configure() {
 	cmake -B build -S . --toolchain="$CMAKE_CROSS" -DCMAKE_INSTALL_PREFIX="$PREFIX" \
