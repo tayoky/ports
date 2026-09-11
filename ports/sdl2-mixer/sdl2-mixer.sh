@@ -1,5 +1,6 @@
 GIT=https://github.com/libsdl-org/SDL_mixer
-TAG=release-2.8.2
+VERSION=2.8.2
+TAG=release-$VERSION
 WEBSITE=https://libsdl.org/
 DEPENDENCIES="sdl2-compat"
 

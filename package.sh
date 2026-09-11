@@ -14,10 +14,14 @@ export DESTDIR="$PACKAGE"
 
 port_install
 
-# generate info.ini
+# generate the package info file
 cd "$PACKAGE"
+mkdir -p "$DESTDIR$PREFIX/tapm"
+echo "package=$NAME
+version=$VERSION
+dependecies=$DEPEDENCIES" > "$DESTDIR$PREFIX/tapm/$NAME.ini"
 
-#make the tar
+# make the tar
 tar -cz * -f ../$NAME.tar.gz
 
 # generate sig

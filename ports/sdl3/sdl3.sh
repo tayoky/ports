@@ -1,5 +1,6 @@
 GIT=https://github.com/libsdl-org/SDL
-TAG=release-3.4.10
+VERSION=3.4.10
+TAG=release-$VERSION
 WEBSITE=https://libsdl.org/
 
 configure () {

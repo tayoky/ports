@@ -1,5 +1,6 @@
 GIT=https://github.com/libsdl-org/sdl12-compat
-TAG=release-1.2.76
+VERSION=1.2.76
+TAG=release-$VERSION
 WEBSITE=https://libsdl.org/
 DEPENDENCIES="sdl2-compat"
 

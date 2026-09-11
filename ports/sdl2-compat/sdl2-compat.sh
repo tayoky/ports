@@ -1,5 +1,6 @@
 GIT=https://github.com/libsdl-org/sdl2-compat
-TAG=release-2.32.70
+VERSION=2.32.70
+TAG=release-$VERSION
 WEBSITE=https://libsdl.org/
 DEPENDENCIES="sdl3"
 

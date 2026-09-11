@@ -1,5 +1,6 @@
 GIT=https://git.ffmpeg.org/ffmpeg
-TAG=n8.1.2
+VERSION=8.1.2
+TAG=n$VERSION
 WEBSITE=https://www.ffmpeg.org/
 DEPENDENCIES="sdl2-compat"
 
