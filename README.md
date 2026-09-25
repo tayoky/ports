@@ -1,4 +1,6 @@
 # stanix's packages
+This repo is mostly obselete see https://github.com/tayoky/packages instead.
+
 this repo contain the portages and packages of the stanix operating system  
 to get info about a particular package just do 
 ```sh
